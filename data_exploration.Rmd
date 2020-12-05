@@ -5,3 +5,115 @@ date: "12/4/2020"
 output: html_document
 ---
 
+```{r setup, include = FALSE, message = FALSE}
+library(tidyverse)
+library(arsenal)
+library(MASS)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_color_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+Read data and make sure factors are factors.
+
+```{r, message=FALSE, warning=FALSE}
+crime_df = 
+  read_csv("data/HateCrimes.csv") %>% 
+  mutate(
+    unemployment = factor(unemployment),
+    urbanization = factor(urbanization),
+    hate_crimes_per_100k_splc = as.numeric(hate_crimes_per_100k_splc)
+  )
+```
+
+Descriptive statistics
+
+```{r}
+my_controls =  tableby.control(
+               total = F,
+               test=F,  
+               numeric.stats = c("meansd", "medianq1q3", "range", "Nmiss2"),
+               cat.stats = c("countpct", "Nmiss2"),
+               stats.labels = list(
+               meansd = "Mean (SD)",
+               medianq1q3 = "Median (Q1, Q3)",
+               range = "Min - Max",
+               Nmiss2 = "Missing",
+               countpct = "N (%)"))
+
+tab = tableby( ~ hate_crimes_per_100k_splc + unemployment + urbanization + median_household_income +   perc_population_with_high_school_degree + perc_non_citizen + gini_index + perc_non_white, 
+               data = crime_df, 
+               control = my_controls)
+
+summary(tab, title = "Descriptive Statistics: Hate Crime Data", text = T)
+```
+
+Comment: there are 4 NA's in variable `hate_crimes_per_100k_splc` and 3 NA's in variable `perc_non_citizen`.  
+
+
+Code to remove NA's (not sure if we wanna do that).
+```{r, message=FALSE, warning=FALSE}
+crime_df_no_na = 
+  read_csv("data/HateCrimes.csv", na = c("", "N/A")) %>% 
+  mutate(
+    unemployment = factor(unemployment),
+    urbanization = factor(urbanization),
+    hate_crimes_per_100k_splc = as.numeric(hate_crimes_per_100k_splc)
+  ) %>% 
+  na.omit()
+```
+
+Distribution of the outcome
+```{r}
+crime_df_no_na %>% 
+  ggplot(aes(x = hate_crimes_per_100k_splc)) + geom_density()
+```
+
+Comment: we need transformation
+
+```{r}
+mod = 
+  lm(hate_crimes_per_100k_splc ~ unemployment + urbanization + median_household_income +   perc_population_with_high_school_degree + perc_non_citizen + gini_index + perc_non_white, 
+      data = crime_df)
+
+boxcox(mod)
+```
+
+Perform the tranformation.
+```{r}
+trans_df = 
+  crime_df_no_na %>% 
+  mutate(
+    hate_crimes_per_100k_splc = log(hate_crimes_per_100k_splc)
+  )
+
+trans_df %>% 
+  ggplot(aes(x = hate_crimes_per_100k_splc)) + geom_density()
+```
+
+Looks good!
+
+Plot crime rate by states.
+```{r}
+crime_df_no_na %>% 
+  mutate(state = fct_reorder(state, hate_crimes_per_100k_splc)) %>% 
+  ggplot(aes(x = state, y = hate_crimes_per_100k_splc)) + 
+  geom_point() + 
+  geom_line() +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+```
+
+Comment: A wired point in `District of Columbia`. The rate of `Oregon` is slightly higher than other states. I will also consider `Minnesota`, `Massachusetts`, `Washington` as potential outliers.
