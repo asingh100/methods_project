@@ -137,6 +137,23 @@ trans_df %>%
 
 Looks good\!
 
+Plots before and after transformation.
+
+``` r
+plot(mod)
+```
+
+<img src="data_exploration_files/figure-gfm/unnamed-chunk-7-1.png" width="90%" /><img src="data_exploration_files/figure-gfm/unnamed-chunk-7-2.png" width="90%" /><img src="data_exploration_files/figure-gfm/unnamed-chunk-7-3.png" width="90%" /><img src="data_exploration_files/figure-gfm/unnamed-chunk-7-4.png" width="90%" />
+
+``` r
+mod_trans = lm(hate_crimes_per_100k_splc ~ unemployment + urbanization + median_household_income +   perc_population_with_high_school_degree + perc_non_citizen + gini_index + perc_non_white, 
+      data = trans_df)
+
+plot(mod_trans)
+```
+
+<img src="data_exploration_files/figure-gfm/unnamed-chunk-8-1.png" width="90%" /><img src="data_exploration_files/figure-gfm/unnamed-chunk-8-2.png" width="90%" /><img src="data_exploration_files/figure-gfm/unnamed-chunk-8-3.png" width="90%" /><img src="data_exploration_files/figure-gfm/unnamed-chunk-8-4.png" width="90%" />
+
 Plot crime rate by states.
 
 ``` r
@@ -151,7 +168,7 @@ crime_df_no_na %>%
     ## geom_path: Each group consists of only one observation. Do you need to adjust
     ## the group aesthetic?
 
-<img src="data_exploration_files/figure-gfm/unnamed-chunk-7-1.png" width="90%" />
+<img src="data_exploration_files/figure-gfm/unnamed-chunk-9-1.png" width="90%" />
 
 Comment: A wired point in `District of Columbia`. The rate of `Oregon`
 is slightly higher than other states. I will also consider `Minnesota`,
