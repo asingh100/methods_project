@@ -113,7 +113,7 @@ Comment: we need transformation
 ``` r
 mod = 
   lm(hate_crimes_per_100k_splc ~ unemployment + urbanization + median_household_income +   perc_population_with_high_school_degree + perc_non_citizen + gini_index + perc_non_white, 
-      data = crime_df)
+      data = crime_df_no_na)
 
 boxcox(mod)
 ```
