@@ -12,6 +12,7 @@ library(tidyverse)
 library(arsenal)
 library(MASS)
 library(HH)
+library(zoo)
 
 knitr::opts_chunk$set(
   fig.width = 6,
@@ -136,6 +137,34 @@ Comment: A wired point in `District of Columbia`. The rate of `Oregon` is slight
 
 ### Modeling:
 
+**Substituting mean in for NA values:**
+
+```{r warning=F, message=F}
+crime_df_mean = crime_df
+
+crime_df_mean[]=lapply(crime_df,na.aggregate)
+
+```
+
+**Confirming Outliers:**
+
+```{r}
+lower = quantile(crime_df_mean$hate_crimes_per_100k_splc,0.25,na.rm = T)-(1.5*IQR(crime_df_mean$hate_crimes_per_100k_splc,na.rm=T)) #determining lower bound for outlier
+
+upper = quantile(crime_df_mean$hate_crimes_per_100k_splc,0.75, na.rm=T)+(1.5*IQR(crime_df_mean$hate_crimes_per_100k_splc,na.rm=T)) #determining upper bound for outlier
+
+outliers = crime_df_mean$state[(crime_df_mean$hate_crimes_per_100k_splc>upper |crime_df_mean$hate_crimes_per_100k_splc<lower)] #finding states that are outliers
+```
+
+**Removing Outliers: **
+
+```{r}
+crime_df_mean_no_outlier = crime_df%>%
+  filter(!state %in% outliers)
+
+crime_df_mean_no_outlier[]=lapply(crime_df_mean_no_outlier,na.aggregate)
+```
+
 **Test if association between income inequality and hate crimes holds true:**
 
 ```{r}
@@ -146,16 +175,44 @@ income_hate_model_full_data%>%
   broom::tidy()%>%
   knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using all the data", format = "html")
 
-income_hate_model_no_NA = trans_df%>%
+income_hate_model_mean = crime_df_mean%>%
   lm(hate_crimes_per_100k_splc~gini_index,data=.)
 
-income_hate_model_no_NA%>%
+income_hate_model_mean%>%
   broom::tidy()%>%
-  knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using data excluding NA's", format = "html")
+  knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using data with means subsituted in for NA values", format = "html")
+
+income_hate_model_mean_trans = crime_df_mean%>%
+  mutate(
+    hate_crimes_per_100k_splc = log(hate_crimes_per_100k_splc)
+  )%>%
+  lm(hate_crimes_per_100k_splc~gini_index,data=.)
+
+income_hate_model_mean_trans%>%
+  broom::tidy()%>%
+  knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using transformed data with means subsituted in for NA values", format = "html")
+
+income_hate_model_mean_no_outlier = crime_df_mean_no_outlier%>%
+  lm(hate_crimes_per_100k_splc~gini_index,data=.)
+
+income_hate_model_mean_no_outlier%>%
+  broom::tidy()%>%
+  knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using data with means subsituted in for NA values and no outliers", format = "html")
+
+income_hate_model_mean_trans_no_outlier = crime_df_mean_no_outlier%>%
+  mutate(
+    hate_crimes_per_100k_splc = log(hate_crimes_per_100k_splc)
+  )%>%
+  lm(hate_crimes_per_100k_splc~gini_index,data=.)
+
+income_hate_model_mean_trans_no_outlier%>%
+  broom::tidy()%>%
+  knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using transformed data with means subsituted in for NA values and no outliers", format = "html")
 ```
 
 
-p-value is only significant for data which includes NA's.
+p-value is only significant for data which is not transformed or when outliers are not removed.
+
 
 **Correlation Matrix of All Variables:**
 
@@ -181,3 +238,5 @@ highly_correlated%>%
   knitr::kable(caption = "Variables that are Highly Correlated (Correlation >= absolute value (0.6))", format = "html")
 
 ```
+
+Studies have shown that high income is correlated with increased education and thus it would make sense that the median income and percentage of high school diploma holders are highly correlated [[1]](https://budgetmodel.wharton.upenn.edu/issues/2016/2/22/education-and-income-growth). Furthermore, a study conducted by the pew research center found that only 17.7% of immigrants are white non-hispanic which makes sense why the percentage of non citizens and the percentage of white people are very highly correlated as well [[2]](https://www.pewresearch.org/hispanic/2020/08/20/facts-on-u-s-immigrants-current-data/). Since these sets of variables are so highly correlated it would only be beneficial to adjust for one from each set in our model due to multicollinearity. 

@@ -176,6 +176,42 @@ is slightly higher than other states. I will also consider `Minnesota`,
 
 ### Modeling:
 
+**Substituting mean in for NA values:**
+
+``` r
+crime_df_mean = crime_df
+
+crime_df_mean[]=lapply(crime_df,na.aggregate)
+```
+
+**Confirming Outliers:**
+
+``` r
+lower = quantile(crime_df_mean$hate_crimes_per_100k_splc,0.25,na.rm = T)-(1.5*IQR(crime_df_mean$hate_crimes_per_100k_splc,na.rm=T)) #determining lower bound for outlier
+
+upper = quantile(crime_df_mean$hate_crimes_per_100k_splc,0.75, na.rm=T)+(1.5*IQR(crime_df_mean$hate_crimes_per_100k_splc,na.rm=T)) #determining upper bound for outlier
+
+outliers = crime_df_mean$state[(crime_df_mean$hate_crimes_per_100k_splc>upper |crime_df_mean$hate_crimes_per_100k_splc<lower)] #finding states that are outliers
+```
+
+**Removing Outliers: **
+
+``` r
+crime_df_mean_no_outlier = crime_df%>%
+  filter(!state %in% outliers)
+
+crime_df_mean_no_outlier[]=lapply(crime_df_mean_no_outlier,na.aggregate)
+```
+
+    ## Warning in mean.default(x[!is.na(x)]): argument is not numeric or logical:
+    ## returning NA
+    
+    ## Warning in mean.default(x[!is.na(x)]): argument is not numeric or logical:
+    ## returning NA
+    
+    ## Warning in mean.default(x[!is.na(x)]): argument is not numeric or logical:
+    ## returning NA
+
 **Test if association between income inequality and hate crimes holds
 true:**
 
@@ -310,12 +346,12 @@ gini\_index
 </table>
 
 ``` r
-income_hate_model_no_NA = trans_df%>%
+income_hate_model_mean = crime_df_mean%>%
   lm(hate_crimes_per_100k_splc~gini_index,data=.)
 
-income_hate_model_no_NA%>%
+income_hate_model_mean%>%
   broom::tidy()%>%
-  knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using data excluding NA's", format = "html")
+  knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using data with means subsituted in for NA values", format = "html")
 ```
 
 <table>
@@ -323,7 +359,7 @@ income_hate_model_no_NA%>%
 <caption>
 
 Testing Association between Income Inequality and Hate Crime using data
-excluding NA’s
+with means subsituted in for NA values
 
 </caption>
 
@@ -377,25 +413,25 @@ p.value
 
 <td style="text-align:right;">
 
-\-4.515451
+\-1.344906
 
 </td>
 
 <td style="text-align:right;">
 
-2.108654
+0.715028
 
 </td>
 
 <td style="text-align:right;">
 
-\-2.141390
+\-1.880913
 
 </td>
 
 <td style="text-align:right;">
 
-0.0379511
+0.0659330
 
 </td>
 
@@ -411,25 +447,25 @@ gini\_index
 
 <td style="text-align:right;">
 
-6.789006
+3.634039
 
 </td>
 
 <td style="text-align:right;">
 
-4.622645
+1.574134
 
 </td>
 
 <td style="text-align:right;">
 
-1.468641
+2.308596
 
 </td>
 
 <td style="text-align:right;">
 
-0.1492083
+0.0252261
 
 </td>
 
@@ -439,7 +475,404 @@ gini\_index
 
 </table>
 
-p-value is only significant for data which includes NA’s.
+``` r
+income_hate_model_mean_trans = crime_df_mean%>%
+  mutate(
+    hate_crimes_per_100k_splc = log(hate_crimes_per_100k_splc)
+  )%>%
+  lm(hate_crimes_per_100k_splc~gini_index,data=.)
+
+income_hate_model_mean_trans%>%
+  broom::tidy()%>%
+  knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using transformed data with means subsituted in for NA values", format = "html")
+```
+
+<table>
+
+<caption>
+
+Testing Association between Income Inequality and Hate Crime using
+transformed data with means subsituted in for NA values
+
+</caption>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+term
+
+</th>
+
+<th style="text-align:right;">
+
+estimate
+
+</th>
+
+<th style="text-align:right;">
+
+std.error
+
+</th>
+
+<th style="text-align:right;">
+
+statistic
+
+</th>
+
+<th style="text-align:right;">
+
+p.value
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+(Intercept)
+
+</td>
+
+<td style="text-align:right;">
+
+\-3.015938
+
+</td>
+
+<td style="text-align:right;">
+
+2.01237
+
+</td>
+
+<td style="text-align:right;">
+
+\-1.4986999
+
+</td>
+
+<td style="text-align:right;">
+
+0.1403669
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+gini\_index
+
+</td>
+
+<td style="text-align:right;">
+
+3.538572
+
+</td>
+
+<td style="text-align:right;">
+
+4.43023
+
+</td>
+
+<td style="text-align:right;">
+
+0.7987332
+
+</td>
+
+<td style="text-align:right;">
+
+0.4282997
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+``` r
+income_hate_model_mean_no_outlier = crime_df_mean_no_outlier%>%
+  lm(hate_crimes_per_100k_splc~gini_index,data=.)
+
+income_hate_model_mean_no_outlier%>%
+  broom::tidy()%>%
+  knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using data with means subsituted in for NA values and no outliers", format = "html")
+```
+
+<table>
+
+<caption>
+
+Testing Association between Income Inequality and Hate Crime using data
+with means subsituted in for NA values and no outliers
+
+</caption>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+term
+
+</th>
+
+<th style="text-align:right;">
+
+estimate
+
+</th>
+
+<th style="text-align:right;">
+
+std.error
+
+</th>
+
+<th style="text-align:right;">
+
+statistic
+
+</th>
+
+<th style="text-align:right;">
+
+p.value
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+(Intercept)
+
+</td>
+
+<td style="text-align:right;">
+
+0.4785740
+
+</td>
+
+<td style="text-align:right;">
+
+0.5178661
+
+</td>
+
+<td style="text-align:right;">
+
+0.9241270
+
+</td>
+
+<td style="text-align:right;">
+
+0.3602427
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+gini\_index
+
+</td>
+
+<td style="text-align:right;">
+
+\-0.4920908
+
+</td>
+
+<td style="text-align:right;">
+
+1.1435577
+
+</td>
+
+<td style="text-align:right;">
+
+\-0.4303156
+
+</td>
+
+<td style="text-align:right;">
+
+0.6689755
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+``` r
+income_hate_model_mean_trans_no_outlier = crime_df_mean_no_outlier%>%
+  mutate(
+    hate_crimes_per_100k_splc = log(hate_crimes_per_100k_splc)
+  )%>%
+  lm(hate_crimes_per_100k_splc~gini_index,data=.)
+
+income_hate_model_mean_trans_no_outlier%>%
+  broom::tidy()%>%
+  knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using transformed data with means subsituted in for NA values and no outliers", format = "html")
+```
+
+<table>
+
+<caption>
+
+Testing Association between Income Inequality and Hate Crime using
+transformed data with means subsituted in for NA values and no outliers
+
+</caption>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+term
+
+</th>
+
+<th style="text-align:right;">
+
+estimate
+
+</th>
+
+<th style="text-align:right;">
+
+std.error
+
+</th>
+
+<th style="text-align:right;">
+
+statistic
+
+</th>
+
+<th style="text-align:right;">
+
+p.value
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+(Intercept)
+
+</td>
+
+<td style="text-align:right;">
+
+\-0.3770053
+
+</td>
+
+<td style="text-align:right;">
+
+2.053688
+
+</td>
+
+<td style="text-align:right;">
+
+\-0.1835747
+
+</td>
+
+<td style="text-align:right;">
+
+0.8551539
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+gini\_index
+
+</td>
+
+<td style="text-align:right;">
+
+\-2.5029952
+
+</td>
+
+<td style="text-align:right;">
+
+4.534978
+
+</td>
+
+<td style="text-align:right;">
+
+\-0.5519311
+
+</td>
+
+<td style="text-align:right;">
+
+0.5836672
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+p-value is only significant for data which is not transformed or when
+outliers are not removed.
 
 **Correlation Matrix of All Variables:**
 
@@ -1111,3 +1544,16 @@ perc\_non\_white
 </tbody>
 
 </table>
+
+Studies have shown that high income is correlated with increased
+education and thus it would make sense that the median income and
+percentage of high school diploma holders are highly correlated
+[\[1\]](https://budgetmodel.wharton.upenn.edu/issues/2016/2/22/education-and-income-growth).
+Furthermore, a study conducted by the pew research center found that
+only 17.7% of immigrants are white non-hispanic which makes sense why
+the percentage of non citizens and the percentage of white people are
+very highly correlated as well
+[\[2\]](https://www.pewresearch.org/hispanic/2020/08/20/facts-on-u-s-immigrants-current-data/).
+Since these sets of variables are so highly correlated it would only be
+beneficial to adjust for one from each set in our model due to
+multicollinearity.
