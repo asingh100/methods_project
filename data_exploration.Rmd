@@ -137,33 +137,6 @@ Comment: A wired point in `District of Columbia`. The rate of `Oregon` is slight
 
 ### Modeling:
 
-**Substituting mean in for NA values:**
-
-```{r warning=F, message=F}
-crime_df_mean = crime_df
-
-crime_df_mean[]=lapply(crime_df,na.aggregate)
-
-```
-
-**Confirming Outliers:**
-
-```{r}
-lower = quantile(crime_df_mean$hate_crimes_per_100k_splc,0.25,na.rm = T)-(1.5*IQR(crime_df_mean$hate_crimes_per_100k_splc,na.rm=T)) #determining lower bound for outlier
-
-upper = quantile(crime_df_mean$hate_crimes_per_100k_splc,0.75, na.rm=T)+(1.5*IQR(crime_df_mean$hate_crimes_per_100k_splc,na.rm=T)) #determining upper bound for outlier
-
-outliers = crime_df_mean$state[(crime_df_mean$hate_crimes_per_100k_splc>upper |crime_df_mean$hate_crimes_per_100k_splc<lower)] #finding states that are outliers
-```
-
-**Removing Outliers: **
-
-```{r}
-crime_df_mean_no_outlier = crime_df%>%
-  filter(!state %in% outliers)
-
-crime_df_mean_no_outlier[]=lapply(crime_df_mean_no_outlier,na.aggregate)
-```
 
 **Test if association between income inequality and hate crimes holds true:**
 
@@ -175,44 +148,73 @@ income_hate_model_full_data%>%
   broom::tidy()%>%
   knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using all the data", format = "html")
 
-income_hate_model_mean = crime_df_mean%>%
-  lm(hate_crimes_per_100k_splc~gini_index,data=.)
-
-income_hate_model_mean%>%
-  broom::tidy()%>%
-  knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using data with means subsituted in for NA values", format = "html")
-
-income_hate_model_mean_trans = crime_df_mean%>%
+income_hate_model_trans = crime_df%>%
   mutate(
     hate_crimes_per_100k_splc = log(hate_crimes_per_100k_splc)
   )%>%
   lm(hate_crimes_per_100k_splc~gini_index,data=.)
 
-income_hate_model_mean_trans%>%
+income_hate_model_trans%>%
   broom::tidy()%>%
-  knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using transformed data with means subsituted in for NA values", format = "html")
+  knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using log transformed data", format = "html")
 
-income_hate_model_mean_no_outlier = crime_df_mean_no_outlier%>%
-  lm(hate_crimes_per_100k_splc~gini_index,data=.)
-
-income_hate_model_mean_no_outlier%>%
-  broom::tidy()%>%
-  knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using data with means subsituted in for NA values and no outliers", format = "html")
-
-income_hate_model_mean_trans_no_outlier = crime_df_mean_no_outlier%>%
-  mutate(
-    hate_crimes_per_100k_splc = log(hate_crimes_per_100k_splc)
-  )%>%
-  lm(hate_crimes_per_100k_splc~gini_index,data=.)
-
-income_hate_model_mean_trans_no_outlier%>%
-  broom::tidy()%>%
-  knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using transformed data with means subsituted in for NA values and no outliers", format = "html")
 ```
 
 
-p-value is only significant for data which is not transformed or when outliers are not removed.
+p-value is only significant for data which is not transformed or when outliers are not removed. Lets check model diagnostics to confirm though.
 
+**Model Diagnostics:**
+
+```{r}
+#For original data:
+
+plot(income_hate_model_full_data)
+```
+
+```{r}
+#For log-transformed data
+
+plot(income_hate_model_trans)
+```
+
+Looking at leverage plots for both models there are definite outliers, will remove and check models again.
+
+**Confirming Outliers:**
+
+```{r}
+lower = quantile(crime_df$hate_crimes_per_100k_splc,0.25,na.rm = T)-(1.5*IQR(crime_df$hate_crimes_per_100k_splc,na.rm=T)) #determining lower bound for outlier
+upper = quantile(crime_df$hate_crimes_per_100k_splc,0.75, na.rm=T)+(1.5*IQR(crime_df$hate_crimes_per_100k_splc,na.rm=T)) #determining upper bound for outlier
+outliers = crime_df$state[(crime_df$hate_crimes_per_100k_splc>upper |crime_df$hate_crimes_per_100k_splc<lower)] #finding states that are outliers
+```
+
+**Removing Outliers:**
+
+```{r}
+crime_df_no_outlier = crime_df%>%
+  filter(!state %in% outliers)
+```
+
+```{r}
+#For original data without outliers:
+
+income_hate_model_no_outlier = lm(hate_crimes_per_100k_splc~gini_index,data=crime_df_no_outlier)
+
+plot(income_hate_model_no_outlier)
+```
+
+```{r}
+#For log-transformed data with no outliers
+
+income_hate_model_trans_no_outlier = crime_df_no_outlier%>%
+  mutate(
+    hate_crimes_per_100k_splc = log(hate_crimes_per_100k_splc)
+  )%>%
+  lm(hate_crimes_per_100k_splc~gini_index,data=.)
+
+plot(income_hate_model_trans_no_outlier)
+```
+
+Plots are closer to model assumptions without outliers present.
 
 **Correlation Matrix of All Variables:**
 
@@ -240,3 +242,46 @@ highly_correlated%>%
 ```
 
 Studies have shown that high income is correlated with increased education and thus it would make sense that the median income and percentage of high school diploma holders are highly correlated [[1]](https://budgetmodel.wharton.upenn.edu/issues/2016/2/22/education-and-income-growth). Furthermore, a study conducted by the pew research center found that only 17.7% of immigrants are white non-hispanic which makes sense why the percentage of non citizens and the percentage of white people are very highly correlated as well [[2]](https://www.pewresearch.org/hispanic/2020/08/20/facts-on-u-s-immigrants-current-data/). Since these sets of variables are so highly correlated it would only be beneficial to adjust for one from each set in our model due to multicollinearity. 
+
+**Stepwise Regression procedure for Removing highly-correlated predictors:**
+
+```{r}
+library(leaps)
+#start with model using all predictors: 
+crime_trans = crime_df_no_outlier%>%
+  mutate(
+    hate_crimes_per_100k_splc = log(hate_crimes_per_100k_splc)
+  )%>%
+  drop_na()
+
+mod_trans = lm(hate_crimes_per_100k_splc ~ unemployment + urbanization + median_household_income +   perc_population_with_high_school_degree + perc_non_citizen + gini_index + perc_non_white,data=crime_trans)
+
+summary(mod_trans)
+
+#start stepwise regression procedure :
+
+mod_tidy = mod_trans%>%
+  broom::tidy()
+
+step(mod_trans, direction='backward')
+
+#Final Recommended Model:
+
+final_rec = lm(formula = hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + gini_index, data = crime_trans)
+
+summary(final_rec)
+
+final_rec_df = final_rec%>%broom::tidy()
+
+#Comparing R-squared of final model vs model containing all variables:
+
+#Final Recommendation from Stepwise Regression:
+
+final_rec%>%broom::glance()
+
+#Model with all variables:
+
+mod_trans%>%broom::glance()
+```
+
+R squared is around the same for both models, however final model has 138% improvement in adusted R squared compared to model that contains all variables. 
