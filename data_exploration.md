@@ -1763,8 +1763,7 @@ summary(fit_4)
     ## F-statistic: 1.848 on 7 and 35 DF,  p-value: 0.1087
 
 ``` r
-probe_interaction(fit_4, pred = perc_population_with_high_school_degree, modx = unemployment, mod2 = gini_index,
-                  alpha = .1)
+probe_interaction(fit_4, pred = perc_population_with_high_school_degree, modx = unemployment, mod2 = gini_index, alpha = .1)
 ```
 
     ## Warning: Johnson-Neyman intervals are not available for factor moderators.
@@ -1862,3 +1861,359 @@ broom::glance(final_rec) # our final recommended model
     ##       <dbl>         <dbl> <dbl>     <dbl>   <dbl> <dbl>  <dbl> <dbl> <dbl>
     ## 1     0.211         0.150 0.521      3.47  0.0251     3  -30.9  71.7  80.5
     ## # ... with 3 more variables: deviance <dbl>, df.residual <int>, nobs <int>
+
+## everything below can be deleted
+
+stepwise with all two-way interactions for full transformed data.
+
+``` r
+trans_full_df = 
+  crime_df %>% 
+  mutate(
+    hate_crimes_per_100k_splc = log(hate_crimes_per_100k_splc)
+  )
+```
+
+``` r
+mod_trans_2way = lm(hate_crimes_per_100k_splc ~ (unemployment + perc_population_with_high_school_degree + gini_index)^2, data = trans_full_df)
+step(mod_trans_2way, direction='backward')
+```
+
+    ## Start:  AIC=-44.33
+    ## hate_crimes_per_100k_splc ~ (unemployment + perc_population_with_high_school_degree + 
+    ##     gini_index)^2
+    ## 
+    ##                                                        Df Sum of Sq    RSS
+    ## - unemployment:gini_index                               1  0.021346 13.607
+    ## - unemployment:perc_population_with_high_school_degree  1  0.077866 13.663
+    ## - perc_population_with_high_school_degree:gini_index    1  0.084496 13.670
+    ## <none>                                                              13.585
+    ##                                                            AIC
+    ## - unemployment:gini_index                              -46.260
+    ## - unemployment:perc_population_with_high_school_degree -46.065
+    ## - perc_population_with_high_school_degree:gini_index   -46.042
+    ## <none>                                                 -44.334
+    ## 
+    ## Step:  AIC=-46.26
+    ## hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + 
+    ##     gini_index + unemployment:perc_population_with_high_school_degree + 
+    ##     perc_population_with_high_school_degree:gini_index
+    ## 
+    ##                                                        Df Sum of Sq    RSS
+    ## - perc_population_with_high_school_degree:gini_index    1  0.089693 13.697
+    ## - unemployment:perc_population_with_high_school_degree  1  0.166168 13.773
+    ## <none>                                                              13.607
+    ##                                                            AIC
+    ## - perc_population_with_high_school_degree:gini_index   -47.951
+    ## - unemployment:perc_population_with_high_school_degree -47.690
+    ## <none>                                                 -46.260
+    ## 
+    ## Step:  AIC=-47.95
+    ## hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + 
+    ##     gini_index + unemployment:perc_population_with_high_school_degree
+    ## 
+    ##                                                        Df Sum of Sq    RSS
+    ## - unemployment:perc_population_with_high_school_degree  1    0.1933 13.890
+    ## <none>                                                              13.697
+    ## - gini_index                                            1    3.5744 17.271
+    ##                                                            AIC
+    ## - unemployment:perc_population_with_high_school_degree -49.293
+    ## <none>                                                 -47.951
+    ## - gini_index                                           -39.053
+    ## 
+    ## Step:  AIC=-49.29
+    ## hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + 
+    ##     gini_index
+    ## 
+    ##                                           Df Sum of Sq    RSS     AIC
+    ## - unemployment                             1    0.4708 14.361 -49.726
+    ## <none>                                                 13.890 -49.293
+    ## - gini_index                               1    4.1986 18.088 -38.879
+    ## - perc_population_with_high_school_degree  1    4.5289 18.419 -38.029
+    ## 
+    ## Step:  AIC=-49.73
+    ## hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree + 
+    ##     gini_index
+    ## 
+    ##                                           Df Sum of Sq    RSS     AIC
+    ## <none>                                                 14.361 -49.726
+    ## - gini_index                               1    3.7838 18.144 -40.734
+    ## - perc_population_with_high_school_degree  1    6.2090 20.570 -34.838
+
+    ## 
+    ## Call:
+    ## lm(formula = hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree + 
+    ##     gini_index, data = trans_full_df)
+    ## 
+    ## Coefficients:
+    ##                             (Intercept)  
+    ##                                  -20.28  
+    ## perc_population_with_high_school_degree  
+    ##                                   13.05  
+    ##                              gini_index  
+    ##                                   16.56
+
+stepwise with all three-way interactions for full transformed data.
+
+``` r
+mod_trans_3way = lm(hate_crimes_per_100k_splc ~ (unemployment + perc_population_with_high_school_degree + gini_index)^3, data = trans_full_df)
+step(mod_trans_3way, direction='backward')
+```
+
+    ## Start:  AIC=-42.59
+    ## hate_crimes_per_100k_splc ~ (unemployment + perc_population_with_high_school_degree + 
+    ##     gini_index)^3
+    ## 
+    ##                                                                   Df Sum of Sq
+    ## - unemployment:perc_population_with_high_school_degree:gini_index  1  0.073456
+    ## <none>                                                                        
+    ##                                                                      RSS
+    ## - unemployment:perc_population_with_high_school_degree:gini_index 13.585
+    ## <none>                                                            13.512
+    ##                                                                       AIC
+    ## - unemployment:perc_population_with_high_school_degree:gini_index -44.334
+    ## <none>                                                            -42.589
+    ## 
+    ## Step:  AIC=-44.33
+    ## hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + 
+    ##     gini_index + unemployment:perc_population_with_high_school_degree + 
+    ##     unemployment:gini_index + perc_population_with_high_school_degree:gini_index
+    ## 
+    ##                                                        Df Sum of Sq    RSS
+    ## - unemployment:gini_index                               1  0.021346 13.607
+    ## - unemployment:perc_population_with_high_school_degree  1  0.077866 13.663
+    ## - perc_population_with_high_school_degree:gini_index    1  0.084496 13.670
+    ## <none>                                                              13.585
+    ##                                                            AIC
+    ## - unemployment:gini_index                              -46.260
+    ## - unemployment:perc_population_with_high_school_degree -46.065
+    ## - perc_population_with_high_school_degree:gini_index   -46.042
+    ## <none>                                                 -44.334
+    ## 
+    ## Step:  AIC=-46.26
+    ## hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + 
+    ##     gini_index + unemployment:perc_population_with_high_school_degree + 
+    ##     perc_population_with_high_school_degree:gini_index
+    ## 
+    ##                                                        Df Sum of Sq    RSS
+    ## - perc_population_with_high_school_degree:gini_index    1  0.089693 13.697
+    ## - unemployment:perc_population_with_high_school_degree  1  0.166168 13.773
+    ## <none>                                                              13.607
+    ##                                                            AIC
+    ## - perc_population_with_high_school_degree:gini_index   -47.951
+    ## - unemployment:perc_population_with_high_school_degree -47.690
+    ## <none>                                                 -46.260
+    ## 
+    ## Step:  AIC=-47.95
+    ## hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + 
+    ##     gini_index + unemployment:perc_population_with_high_school_degree
+    ## 
+    ##                                                        Df Sum of Sq    RSS
+    ## - unemployment:perc_population_with_high_school_degree  1    0.1933 13.890
+    ## <none>                                                              13.697
+    ## - gini_index                                            1    3.5744 17.271
+    ##                                                            AIC
+    ## - unemployment:perc_population_with_high_school_degree -49.293
+    ## <none>                                                 -47.951
+    ## - gini_index                                           -39.053
+    ## 
+    ## Step:  AIC=-49.29
+    ## hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + 
+    ##     gini_index
+    ## 
+    ##                                           Df Sum of Sq    RSS     AIC
+    ## - unemployment                             1    0.4708 14.361 -49.726
+    ## <none>                                                 13.890 -49.293
+    ## - gini_index                               1    4.1986 18.088 -38.879
+    ## - perc_population_with_high_school_degree  1    4.5289 18.419 -38.029
+    ## 
+    ## Step:  AIC=-49.73
+    ## hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree + 
+    ##     gini_index
+    ## 
+    ##                                           Df Sum of Sq    RSS     AIC
+    ## <none>                                                 14.361 -49.726
+    ## - gini_index                               1    3.7838 18.144 -40.734
+    ## - perc_population_with_high_school_degree  1    6.2090 20.570 -34.838
+
+    ## 
+    ## Call:
+    ## lm(formula = hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree + 
+    ##     gini_index, data = trans_full_df)
+    ## 
+    ## Coefficients:
+    ##                             (Intercept)  
+    ##                                  -20.28  
+    ## perc_population_with_high_school_degree  
+    ##                                   13.05  
+    ##                              gini_index  
+    ##                                   16.56
+
+stepwise with all two-way interactions for full non-transformed data.
+
+``` r
+mod_2way = lm(hate_crimes_per_100k_splc ~ (unemployment + perc_population_with_high_school_degree + gini_index)^2, data = crime_df)
+step(mod_2way, direction='backward')
+```
+
+    ## Start:  AIC=-146.21
+    ## hate_crimes_per_100k_splc ~ (unemployment + perc_population_with_high_school_degree + 
+    ##     gini_index)^2
+    ## 
+    ##                                                        Df Sum of Sq    RSS
+    ## - perc_population_with_high_school_degree:gini_index    1  0.000100 1.5551
+    ## - unemployment:perc_population_with_high_school_degree  1  0.027886 1.5829
+    ## - unemployment:gini_index                               1  0.049893 1.6049
+    ## <none>                                                              1.5550
+    ##                                                            AIC
+    ## - perc_population_with_high_school_degree:gini_index   -148.21
+    ## - unemployment:perc_population_with_high_school_degree -147.37
+    ## - unemployment:gini_index                              -146.72
+    ## <none>                                                 -146.21
+    ## 
+    ## Step:  AIC=-148.21
+    ## hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + 
+    ##     gini_index + unemployment:perc_population_with_high_school_degree + 
+    ##     unemployment:gini_index
+    ## 
+    ##                                                        Df Sum of Sq    RSS
+    ## - unemployment:perc_population_with_high_school_degree  1  0.028171 1.5832
+    ## - unemployment:gini_index                               1  0.049800 1.6049
+    ## <none>                                                              1.5551
+    ##                                                            AIC
+    ## - unemployment:perc_population_with_high_school_degree -149.36
+    ## - unemployment:gini_index                              -148.72
+    ## <none>                                                 -148.21
+    ## 
+    ## Step:  AIC=-149.36
+    ## hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + 
+    ##     gini_index + unemployment:gini_index
+    ## 
+    ##                                           Df Sum of Sq    RSS     AIC
+    ## - unemployment:gini_index                  1   0.02565 1.6089 -150.61
+    ## <none>                                                 1.5832 -149.36
+    ## - perc_population_with_high_school_degree  1   0.72273 2.3060 -133.69
+    ## 
+    ## Step:  AIC=-150.61
+    ## hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + 
+    ##     gini_index
+    ## 
+    ##                                           Df Sum of Sq    RSS     AIC
+    ## - unemployment                             1   0.00353 1.6124 -152.50
+    ## <none>                                                 1.6089 -150.61
+    ## - perc_population_with_high_school_degree  1   0.86123 2.4701 -132.46
+    ## - gini_index                               1   1.01969 2.6286 -129.53
+    ## 
+    ## Step:  AIC=-152.5
+    ## hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree + 
+    ##     gini_index
+    ## 
+    ##                                           Df Sum of Sq    RSS     AIC
+    ## <none>                                                 1.6124 -152.50
+    ## - perc_population_with_high_school_degree  1    1.0064 2.6188 -131.71
+    ## - gini_index                               1    1.0448 2.6572 -131.02
+
+    ## 
+    ## Call:
+    ## lm(formula = hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree + 
+    ##     gini_index, data = crime_df)
+    ## 
+    ## Coefficients:
+    ##                             (Intercept)  
+    ##                                  -8.212  
+    ## perc_population_with_high_school_degree  
+    ##                                   5.256  
+    ##                              gini_index  
+    ##                                   8.702
+
+stepwise with all three-way interactions for full non-transformed data.
+
+``` r
+mod_3way = lm(hate_crimes_per_100k_splc ~ (unemployment + perc_population_with_high_school_degree + gini_index)^3, data = crime_df)
+step(mod_3way, direction='backward')
+```
+
+    ## Start:  AIC=-144.21
+    ## hate_crimes_per_100k_splc ~ (unemployment + perc_population_with_high_school_degree + 
+    ##     gini_index)^3
+    ## 
+    ##                                                                   Df  Sum of Sq
+    ## - unemployment:perc_population_with_high_school_degree:gini_index  1 7.7861e-05
+    ## <none>                                                                         
+    ##                                                                      RSS
+    ## - unemployment:perc_population_with_high_school_degree:gini_index 1.5550
+    ## <none>                                                            1.5549
+    ##                                                                       AIC
+    ## - unemployment:perc_population_with_high_school_degree:gini_index -146.21
+    ## <none>                                                            -144.21
+    ## 
+    ## Step:  AIC=-146.21
+    ## hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + 
+    ##     gini_index + unemployment:perc_population_with_high_school_degree + 
+    ##     unemployment:gini_index + perc_population_with_high_school_degree:gini_index
+    ## 
+    ##                                                        Df Sum of Sq    RSS
+    ## - perc_population_with_high_school_degree:gini_index    1  0.000100 1.5551
+    ## - unemployment:perc_population_with_high_school_degree  1  0.027886 1.5829
+    ## - unemployment:gini_index                               1  0.049893 1.6049
+    ## <none>                                                              1.5550
+    ##                                                            AIC
+    ## - perc_population_with_high_school_degree:gini_index   -148.21
+    ## - unemployment:perc_population_with_high_school_degree -147.37
+    ## - unemployment:gini_index                              -146.72
+    ## <none>                                                 -146.21
+    ## 
+    ## Step:  AIC=-148.21
+    ## hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + 
+    ##     gini_index + unemployment:perc_population_with_high_school_degree + 
+    ##     unemployment:gini_index
+    ## 
+    ##                                                        Df Sum of Sq    RSS
+    ## - unemployment:perc_population_with_high_school_degree  1  0.028171 1.5832
+    ## - unemployment:gini_index                               1  0.049800 1.6049
+    ## <none>                                                              1.5551
+    ##                                                            AIC
+    ## - unemployment:perc_population_with_high_school_degree -149.36
+    ## - unemployment:gini_index                              -148.72
+    ## <none>                                                 -148.21
+    ## 
+    ## Step:  AIC=-149.36
+    ## hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + 
+    ##     gini_index + unemployment:gini_index
+    ## 
+    ##                                           Df Sum of Sq    RSS     AIC
+    ## - unemployment:gini_index                  1   0.02565 1.6089 -150.61
+    ## <none>                                                 1.5832 -149.36
+    ## - perc_population_with_high_school_degree  1   0.72273 2.3060 -133.69
+    ## 
+    ## Step:  AIC=-150.61
+    ## hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + 
+    ##     gini_index
+    ## 
+    ##                                           Df Sum of Sq    RSS     AIC
+    ## - unemployment                             1   0.00353 1.6124 -152.50
+    ## <none>                                                 1.6089 -150.61
+    ## - perc_population_with_high_school_degree  1   0.86123 2.4701 -132.46
+    ## - gini_index                               1   1.01969 2.6286 -129.53
+    ## 
+    ## Step:  AIC=-152.5
+    ## hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree + 
+    ##     gini_index
+    ## 
+    ##                                           Df Sum of Sq    RSS     AIC
+    ## <none>                                                 1.6124 -152.50
+    ## - perc_population_with_high_school_degree  1    1.0064 2.6188 -131.71
+    ## - gini_index                               1    1.0448 2.6572 -131.02
+
+    ## 
+    ## Call:
+    ## lm(formula = hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree + 
+    ##     gini_index, data = crime_df)
+    ## 
+    ## Coefficients:
+    ##                             (Intercept)  
+    ##                                  -8.212  
+    ## perc_population_with_high_school_degree  
+    ##                                   5.256  
+    ##                              gini_index  
+    ##                                   8.702
