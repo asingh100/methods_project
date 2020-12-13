@@ -13,6 +13,7 @@ library(arsenal)
 library(MASS)
 library(HH)
 library(zoo)
+library(interactions)
 
 knitr::opts_chunk$set(
   fig.width = 6,
@@ -284,4 +285,35 @@ final_rec%>%broom::glance()
 mod_trans%>%broom::glance()
 ```
 
-R squared is around the same for both models, however final model has 138% improvement in adusted R squared compared to model that contains all variables. 
+R squared is around the same for both models, however final model has 138% improvement in adjusted R squared compared to model that contains all variables. 
+
+Check all 2-way interactions between all predictors
+```{r}
+
+final_rec = lm(formula = hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + gini_index, data = crime_trans)
+
+crime_trans
+
+fit_1 = lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree *unemployment, data = crime_trans)
+summary(fit_1)
+interact_plot(fit_1, pred = perc_population_with_high_school_degree, modx = unemployment)
+
+fit_2 = lm(hate_crimes_per_100k_splc ~ gini_index *unemployment, data = crime_trans)
+summary(fit_2)
+interact_plot(fit_2, pred = gini_index, modx = unemployment)
+
+fit_3 = lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree *gini_index, data = crime_trans)
+summary(fit_3)
+interact_plot(fit_3, pred = perc_population_with_high_school_degree, modx = gini_index)
+```
+
+Check 3_way interactions between predictors
+
+```{r}
+
+fit_4 = lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree *unemployment* gini_index, data = crime_trans)
+summary(fit_4)
+probe_interaction(fit_4, pred = perc_population_with_high_school_degree, modx = unemployment, mod2 = gini_index,
+                  alpha = .1)
+```
+

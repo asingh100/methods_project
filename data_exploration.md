@@ -1394,5 +1394,247 @@ mod_trans%>%broom::glance()
     ## # ... with 3 more variables: deviance <dbl>, df.residual <int>, nobs <int>
 
 R squared is around the same for both models, however final model has
-138% improvement in adusted R squared compared to model that contains
+138% improvement in adjusted R squared compared to model that contains
 all variables.
+
+Check all 2-way interactions between all predictors
+
+``` r
+final_rec = lm(formula = hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + gini_index, data = crime_trans)
+
+crime_trans
+```
+
+    ## # A tibble: 43 x 9
+    ##    state unemployment urbanization median_househol~ perc_population~
+    ##    <chr> <fct>        <fct>                   <dbl>            <dbl>
+    ##  1 Alab~ high         low                     42278            0.821
+    ##  2 Alas~ high         low                     67629            0.914
+    ##  3 Ariz~ high         high                    49254            0.842
+    ##  4 Arka~ high         low                     44922            0.824
+    ##  5 Cali~ high         high                    60487            0.806
+    ##  6 Colo~ low          high                    60940            0.893
+    ##  7 Conn~ high         high                    70161            0.886
+    ##  8 Dela~ low          high                    57522            0.874
+    ##  9 Flor~ high         high                    46140            0.853
+    ## 10 Geor~ high         high                    49555            0.839
+    ## # ... with 33 more rows, and 4 more variables: perc_non_citizen <dbl>,
+    ## #   gini_index <dbl>, perc_non_white <dbl>, hate_crimes_per_100k_splc <dbl>
+
+``` r
+fit_1 = lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree *unemployment, data = crime_trans)
+summary(fit_1)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree * 
+    ##     unemployment, data = crime_trans)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -0.9817 -0.3865  0.1390  0.3383  1.0643 
+    ## 
+    ## Coefficients:
+    ##                                                         Estimate Std. Error
+    ## (Intercept)                                               -5.811      3.686
+    ## perc_population_with_high_school_degree                    4.858      4.336
+    ## unemploymentlow                                            3.078      5.025
+    ## perc_population_with_high_school_degree:unemploymentlow   -3.245      5.814
+    ##                                                         t value Pr(>|t|)
+    ## (Intercept)                                              -1.577    0.123
+    ## perc_population_with_high_school_degree                   1.120    0.269
+    ## unemploymentlow                                           0.612    0.544
+    ## perc_population_with_high_school_degree:unemploymentlow  -0.558    0.580
+    ## 
+    ## Residual standard error: 0.5428 on 39 degrees of freedom
+    ## Multiple R-squared:  0.1427, Adjusted R-squared:  0.07678 
+    ## F-statistic: 2.164 on 3 and 39 DF,  p-value: 0.1077
+
+``` r
+interact_plot(fit_1, pred = perc_population_with_high_school_degree, modx = unemployment)
+```
+
+<img src="data_exploration_files/figure-gfm/unnamed-chunk-19-1.png" width="90%" />
+
+``` r
+fit_2 = lm(hate_crimes_per_100k_splc ~ gini_index *unemployment, data = crime_trans)
+summary(fit_2)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = hate_crimes_per_100k_splc ~ gini_index * unemployment, 
+    ##     data = crime_trans)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -1.00415 -0.39695  0.06685  0.35960  1.20266 
+    ## 
+    ## Coefficients:
+    ##                            Estimate Std. Error t value Pr(>|t|)
+    ## (Intercept)                  0.3949     4.0955   0.096    0.924
+    ## gini_index                  -4.5056     8.8720  -0.508    0.614
+    ## unemploymentlow             -5.7911     4.9591  -1.168    0.250
+    ## gini_index:unemploymentlow  13.6427    10.8525   1.257    0.216
+    ## 
+    ## Residual standard error: 0.5364 on 39 degrees of freedom
+    ## Multiple R-squared:  0.1627, Adjusted R-squared:  0.09833 
+    ## F-statistic: 2.527 on 3 and 39 DF,  p-value: 0.07146
+
+``` r
+interact_plot(fit_2, pred = gini_index, modx = unemployment)
+```
+
+<img src="data_exploration_files/figure-gfm/unnamed-chunk-19-2.png" width="90%" />
+
+``` r
+fit_3 = lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree *gini_index, data = crime_trans)
+summary(fit_3)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree * 
+    ##     gini_index, data = crime_trans)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -1.24364 -0.41188  0.05797  0.41459  0.96309 
+    ## 
+    ## Coefficients:
+    ##                                                    Estimate Std. Error t value
+    ## (Intercept)                                           12.44      75.09   0.166
+    ## perc_population_with_high_school_degree              -20.90      84.97  -0.246
+    ## gini_index                                           -46.79     163.63  -0.286
+    ## perc_population_with_high_school_degree:gini_index    64.70     185.47   0.349
+    ##                                                    Pr(>|t|)
+    ## (Intercept)                                           0.869
+    ## perc_population_with_high_school_degree               0.807
+    ## gini_index                                            0.776
+    ## perc_population_with_high_school_degree:gini_index    0.729
+    ## 
+    ## Residual standard error: 0.5402 on 39 degrees of freedom
+    ## Multiple R-squared:  0.1508, Adjusted R-squared:  0.08553 
+    ## F-statistic: 2.309 on 3 and 39 DF,  p-value: 0.09138
+
+``` r
+interact_plot(fit_3, pred = perc_population_with_high_school_degree, modx = gini_index)
+```
+
+<img src="data_exploration_files/figure-gfm/unnamed-chunk-19-3.png" width="90%" />
+
+Check 3\_way interactions between predictors
+
+``` r
+fit_4 = lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree *unemployment* gini_index, data = crime_trans)
+summary(fit_4)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree * 
+    ##     unemployment * gini_index, data = crime_trans)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -1.05139 -0.36654  0.06147  0.32696  1.07430 
+    ## 
+    ## Coefficients:
+    ##                                                                    Estimate
+    ## (Intercept)                                                           74.19
+    ## perc_population_with_high_school_degree                              -85.87
+    ## unemploymentlow                                                      -83.30
+    ## gini_index                                                          -174.12
+    ## perc_population_with_high_school_degree:unemploymentlow               84.89
+    ## perc_population_with_high_school_degree:gini_index                   197.60
+    ## unemploymentlow:gini_index                                           173.39
+    ## perc_population_with_high_school_degree:unemploymentlow:gini_index  -174.76
+    ##                                                                    Std. Error
+    ## (Intercept)                                                            109.72
+    ## perc_population_with_high_school_degree                                124.18
+    ## unemploymentlow                                                        148.62
+    ## gini_index                                                             238.43
+    ## perc_population_with_high_school_degree:unemploymentlow                168.30
+    ## perc_population_with_high_school_degree:gini_index                     270.19
+    ## unemploymentlow:gini_index                                             323.43
+    ## perc_population_with_high_school_degree:unemploymentlow:gini_index     366.82
+    ##                                                                    t value
+    ## (Intercept)                                                          0.676
+    ## perc_population_with_high_school_degree                             -0.691
+    ## unemploymentlow                                                     -0.560
+    ## gini_index                                                          -0.730
+    ## perc_population_with_high_school_degree:unemploymentlow              0.504
+    ## perc_population_with_high_school_degree:gini_index                   0.731
+    ## unemploymentlow:gini_index                                           0.536
+    ## perc_population_with_high_school_degree:unemploymentlow:gini_index  -0.476
+    ##                                                                    Pr(>|t|)
+    ## (Intercept)                                                           0.503
+    ## perc_population_with_high_school_degree                               0.494
+    ## unemploymentlow                                                       0.579
+    ## gini_index                                                            0.470
+    ## perc_population_with_high_school_degree:unemploymentlow               0.617
+    ## perc_population_with_high_school_degree:gini_index                    0.469
+    ## unemploymentlow:gini_index                                            0.595
+    ## perc_population_with_high_school_degree:unemploymentlow:gini_index    0.637
+    ## 
+    ## Residual standard error: 0.5287 on 35 degrees of freedom
+    ## Multiple R-squared:  0.2699, Adjusted R-squared:  0.1239 
+    ## F-statistic: 1.848 on 7 and 35 DF,  p-value: 0.1087
+
+``` r
+probe_interaction(fit_4, pred = perc_population_with_high_school_degree, modx = unemployment, mod2 = gini_index,
+                  alpha = .1)
+```
+
+    ## Warning: Johnson-Neyman intervals are not available for factor moderators.
+
+    ## ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ While gini_index (2nd moderator) = 0.44 (- 1 SD) ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ 
+    ## 
+    ## SIMPLE SLOPES ANALYSIS 
+    ## 
+    ## Slope of perc_population_with_high_school_degree when unemployment = high: 
+    ## 
+    ##   Est.   S.E.   t val.      p
+    ## ------ ------ -------- ------
+    ##   0.34   7.81     0.04   0.97
+    ## 
+    ## Slope of perc_population_with_high_school_degree when unemployment = low: 
+    ## 
+    ##   Est.   S.E.   t val.      p
+    ## ------ ------ -------- ------
+    ##   8.98   7.26     1.24   0.22
+    ## 
+    ## ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ While gini_index (2nd moderator) = 0.45 (Mean) ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ 
+    ## 
+    ## SIMPLE SLOPES ANALYSIS 
+    ## 
+    ## Slope of perc_population_with_high_school_degree when unemployment = high: 
+    ## 
+    ##   Est.   S.E.   t val.      p
+    ## ------ ------ -------- ------
+    ##   3.85   4.95     0.78   0.44
+    ## 
+    ## Slope of perc_population_with_high_school_degree when unemployment = low: 
+    ## 
+    ##   Est.   S.E.   t val.      p
+    ## ------ ------ -------- ------
+    ##   9.39   5.10     1.84   0.07
+    ## 
+    ## ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ While gini_index (2nd moderator) = 0.47 (+ 1 SD) ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ 
+    ## 
+    ## SIMPLE SLOPES ANALYSIS 
+    ## 
+    ## Slope of perc_population_with_high_school_degree when unemployment = high: 
+    ## 
+    ##   Est.   S.E.   t val.      p
+    ## ------ ------ -------- ------
+    ##   7.36   5.83     1.26   0.22
+    ## 
+    ## Slope of perc_population_with_high_school_degree when unemployment = low: 
+    ## 
+    ##   Est.   S.E.   t val.      p
+    ## ------ ------ -------- ------
+    ##   9.80   6.18     1.59   0.12
+
+<img src="data_exploration_files/figure-gfm/unnamed-chunk-20-1.png" width="90%" />
