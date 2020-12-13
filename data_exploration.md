@@ -1372,7 +1372,7 @@ final_rec_df = final_rec%>%broom::tidy()
 
 #Final Recommendation from Stepwise Regression:
 
-final_rec%>%broom::glance()
+final_rec %>% broom::glance()
 ```
 
     ## # A tibble: 1 x 12
@@ -1384,7 +1384,7 @@ final_rec%>%broom::glance()
 ``` r
 #Model with all variables:
 
-mod_trans%>%broom::glance()
+mod_trans %>% broom::glance()
 ```
 
     ## # A tibble: 1 x 12
@@ -1397,134 +1397,314 @@ R squared is around the same for both models, however final model has
 138% improvement in adjusted R squared compared to model that contains
 all variables.
 
-Check all 2-way interactions between all predictors
+# Explore interactions of all variables
 
 ``` r
-final_rec = lm(formula = hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + gini_index, data = crime_trans)
-
-crime_trans
+crime =
+  crime_trans %>%
+ dplyr::select(-state)
 ```
 
-    ## # A tibble: 43 x 9
-    ##    state unemployment urbanization median_househol~ perc_population~
-    ##    <chr> <fct>        <fct>                   <dbl>            <dbl>
-    ##  1 Alab~ high         low                     42278            0.821
-    ##  2 Alas~ high         low                     67629            0.914
-    ##  3 Ariz~ high         high                    49254            0.842
-    ##  4 Arka~ high         low                     44922            0.824
-    ##  5 Cali~ high         high                    60487            0.806
-    ##  6 Colo~ low          high                    60940            0.893
-    ##  7 Conn~ high         high                    70161            0.886
-    ##  8 Dela~ low          high                    57522            0.874
-    ##  9 Flor~ high         high                    46140            0.853
-    ## 10 Geor~ high         high                    49555            0.839
-    ## # ... with 33 more rows, and 4 more variables: perc_non_citizen <dbl>,
-    ## #   gini_index <dbl>, perc_non_white <dbl>, hate_crimes_per_100k_splc <dbl>
+Check for 2-way interactions between all predictors
 
 ``` r
-fit_1 = lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree *unemployment, data = crime_trans)
-summary(fit_1)
+lm.fit = lm(hate_crimes_per_100k_splc ~ (.)^2, data = crime)
+lm_fit_df = broom::tidy(lm.fit)
+lm_fit_df
+```
+
+    ## # A tibble: 29 x 5
+    ##    term                                    estimate  std.error statistic p.value
+    ##    <chr>                                      <dbl>      <dbl>     <dbl>   <dbl>
+    ##  1 (Intercept)                          -447.          3.32e+2   -1.35    0.199 
+    ##  2 unemploymentlow                        18.4         1.94e+1    0.947   0.360 
+    ##  3 urbanizationlow                        28.7         2.92e+1    0.983   0.342 
+    ##  4 median_household_income                -0.00394     1.77e-3   -2.23    0.0427
+    ##  5 perc_population_with_high_school_de~  752.          3.96e+2    1.90    0.0786
+    ##  6 perc_non_citizen                       83.2         8.58e+2    0.0970  0.924 
+    ##  7 gini_index                            862.          6.57e+2    1.31    0.211 
+    ##  8 perc_non_white                         59.3         2.03e+2    0.293   0.774 
+    ##  9 unemploymentlow:urbanizationlow         0.798       1.05e+0    0.764   0.458 
+    ## 10 unemploymentlow:median_household_in~    0.000258    9.72e-5    2.65    0.0188
+    ## # ... with 19 more rows
+
+``` r
+# obtain significant interactions
+all_int =
+  broom::tidy(lm.fit) %>%
+ slice(9:29) %>%
+  filter(p.value < 0.05)
+
+all_int # these are the significant interactions present in our data
+```
+
+    ## # A tibble: 4 x 5
+    ##   term                                      estimate std.error statistic p.value
+    ##   <chr>                                        <dbl>     <dbl>     <dbl>   <dbl>
+    ## 1 unemploymentlow:median_household_income   0.000258   9.72e-5      2.65  0.0188
+    ## 2 urbanizationlow:median_household_income   0.000270   1.21e-4      2.22  0.0431
+    ## 3 urbanizationlow:perc_population_with_h~ -62.2        2.78e+1     -2.24  0.0421
+    ## 4 median_household_income:gini_index        0.00769    3.02e-3      2.55  0.0232
+
+From the analysis above, we see 4 significant interactions: unemployment
+and median household income, urbanization and median household income,
+urbanization and perc\_population with HS degree, and finally
+median\_household income and gini index.
+
+``` r
+# Unemployment and median household income
+reg_med<-lm(hate_crimes_per_100k_splc ~ median_household_income *unemployment, data = crime)
+  summary(reg_med)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = hate_crimes_per_100k_splc ~ median_household_income * 
+    ##     unemployment, data = crime)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -0.94931 -0.37985  0.06987  0.35528  1.25644 
+    ## 
+    ## Coefficients:
+    ##                                           Estimate Std. Error t value Pr(>|t|)
+    ## (Intercept)                             -1.970e+00  7.261e-01  -2.713  0.00987
+    ## median_household_income                  5.490e-06  1.375e-05   0.399  0.69187
+    ## unemploymentlow                         -1.126e-01  1.103e+00  -0.102  0.91919
+    ## median_household_income:unemploymentlow  7.899e-06  1.981e-05   0.399  0.69234
+    ##                                           
+    ## (Intercept)                             **
+    ## median_household_income                   
+    ## unemploymentlow                           
+    ## median_household_income:unemploymentlow   
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 0.5454 on 39 degrees of freedom
+    ## Multiple R-squared:  0.1344, Adjusted R-squared:  0.06782 
+    ## F-statistic: 2.018 on 3 and 39 DF,  p-value: 0.1272
+
+``` r
+    interact_plot(reg_med, pred = median_household_income, modx = unemployment )
+```
+
+<img src="data_exploration_files/figure-gfm/unnamed-chunk-21-1.png" width="90%" />
+
+``` r
+# high unemployment
+  int_1<-filter(crime, unemployment=="high") 
+    reg_1<-lm(hate_crimes_per_100k_splc ~ median_household_income, data=int_1)
+      broom::tidy(reg_1) #  not significant
+```
+
+    ## # A tibble: 2 x 5
+    ##   term                       estimate std.error statistic p.value
+    ##   <chr>                         <dbl>     <dbl>     <dbl>   <dbl>
+    ## 1 (Intercept)             -1.97       0.739        -2.66   0.0153
+    ## 2 median_household_income  0.00000549 0.0000140     0.392  0.699
+
+``` r
+# low unemployment
+  int_2<-filter(crime, unemployment=="low") 
+    reg_2<-lm(hate_crimes_per_100k_splc ~ median_household_income, data=int_2)
+     broom::tidy(reg_2) # not significant
+```
+
+    ## # A tibble: 2 x 5
+    ##   term                      estimate std.error statistic p.value
+    ##   <chr>                        <dbl>     <dbl>     <dbl>   <dbl>
+    ## 1 (Intercept)             -2.08      0.815        -2.55   0.0189
+    ## 2 median_household_income  0.0000134 0.0000140     0.955  0.351
+
+``` r
+# Urbanization and median household income
+reg_med_2<-lm(hate_crimes_per_100k_splc ~ median_household_income* urbanization, data = crime)
+summary(reg_med_2)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = hate_crimes_per_100k_splc ~ median_household_income * 
+    ##     urbanization, data = crime)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -1.29800 -0.43155  0.02884  0.36844  1.00236 
+    ## 
+    ## Coefficients:
+    ##                                           Estimate Std. Error t value Pr(>|t|)
+    ## (Intercept)                             -2.756e+00  8.296e-01  -3.322  0.00195
+    ## median_household_income                  2.309e-05  1.442e-05   1.601  0.11740
+    ## urbanizationlow                          8.797e-01  1.114e+00   0.790  0.43441
+    ## median_household_income:urbanizationlow -1.688e-05  2.001e-05  -0.843  0.40416
+    ##                                           
+    ## (Intercept)                             **
+    ## median_household_income                   
+    ## urbanizationlow                           
+    ## median_household_income:urbanizationlow   
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 0.5639 on 39 degrees of freedom
+    ## Multiple R-squared:  0.07467,    Adjusted R-squared:  0.003492 
+    ## F-statistic: 1.049 on 3 and 39 DF,  p-value: 0.3817
+
+``` r
+interact_plot(reg_med_2, pred = median_household_income, modx = urbanization )
+```
+
+<img src="data_exploration_files/figure-gfm/unnamed-chunk-21-2.png" width="90%" />
+
+``` r
+# high urbanization
+  int_3<-filter(crime, urbanization=="high") 
+    reg_3<-lm(hate_crimes_per_100k_splc ~ median_household_income, data=int_3)
+      broom::tidy(reg_3) #  not significant
+```
+
+    ## # A tibble: 2 x 5
+    ##   term                      estimate std.error statistic p.value
+    ##   <chr>                        <dbl>     <dbl>     <dbl>   <dbl>
+    ## 1 (Intercept)             -2.76      0.831         -3.32 0.00344
+    ## 2 median_household_income  0.0000231 0.0000144      1.60 0.126
+
+``` r
+# low urbanization
+  int_4<-filter(crime, urbanization=="low") 
+    reg_4<-lm(hate_crimes_per_100k_splc ~ median_household_income, data=int_4)
+     broom::tidy(reg_4) # not significant
+```
+
+    ## # A tibble: 2 x 5
+    ##   term                       estimate std.error statistic p.value
+    ##   <chr>                         <dbl>     <dbl>     <dbl>   <dbl>
+    ## 1 (Intercept)             -1.88       0.742        -2.53   0.0205
+    ## 2 median_household_income  0.00000621 0.0000139     0.448  0.659
+
+``` r
+# Urbanization and perc_population with HS degree
+reg_per<-lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree* urbanization, data=crime)
+  summary(reg_per)
 ```
 
     ## 
     ## Call:
     ## lm(formula = hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree * 
-    ##     unemployment, data = crime_trans)
+    ##     urbanization, data = crime)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -0.9817 -0.3865  0.1390  0.3383  1.0643 
+    ## -1.2244 -0.3935  0.1048  0.3976  0.9315 
     ## 
     ## Coefficients:
     ##                                                         Estimate Std. Error
-    ## (Intercept)                                               -5.811      3.686
-    ## perc_population_with_high_school_degree                    4.858      4.336
-    ## unemploymentlow                                            3.078      5.025
-    ## perc_population_with_high_school_degree:unemploymentlow   -3.245      5.814
-    ##                                                         t value Pr(>|t|)
-    ## (Intercept)                                              -1.577    0.123
-    ## perc_population_with_high_school_degree                   1.120    0.269
-    ## unemploymentlow                                           0.612    0.544
-    ## perc_population_with_high_school_degree:unemploymentlow  -0.558    0.580
+    ## (Intercept)                                               -8.759      3.448
+    ## perc_population_with_high_school_degree                    8.509      4.007
+    ## urbanizationlow                                            4.155      4.534
+    ## perc_population_with_high_school_degree:urbanizationlow   -5.004      5.237
+    ##                                                         t value Pr(>|t|)  
+    ## (Intercept)                                              -2.540   0.0152 *
+    ## perc_population_with_high_school_degree                   2.124   0.0401 *
+    ## urbanizationlow                                           0.917   0.3650  
+    ## perc_population_with_high_school_degree:urbanizationlow  -0.956   0.3452  
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 0.5428 on 39 degrees of freedom
-    ## Multiple R-squared:  0.1427, Adjusted R-squared:  0.07678 
-    ## F-statistic: 2.164 on 3 and 39 DF,  p-value: 0.1077
+    ## Residual standard error: 0.5457 on 39 degrees of freedom
+    ## Multiple R-squared:  0.1333, Adjusted R-squared:  0.06663 
+    ## F-statistic: 1.999 on 3 and 39 DF,  p-value: 0.13
 
 ``` r
-interact_plot(fit_1, pred = perc_population_with_high_school_degree, modx = unemployment)
+    interact_plot(reg_per, pred = perc_population_with_high_school_degree, modx = urbanization )
 ```
 
-<img src="data_exploration_files/figure-gfm/unnamed-chunk-19-1.png" width="90%" />
+<img src="data_exploration_files/figure-gfm/unnamed-chunk-21-3.png" width="90%" />
 
 ``` r
-fit_2 = lm(hate_crimes_per_100k_splc ~ gini_index *unemployment, data = crime_trans)
-summary(fit_2)
-```
-
-    ## 
-    ## Call:
-    ## lm(formula = hate_crimes_per_100k_splc ~ gini_index * unemployment, 
-    ##     data = crime_trans)
-    ## 
-    ## Residuals:
-    ##      Min       1Q   Median       3Q      Max 
-    ## -1.00415 -0.39695  0.06685  0.35960  1.20266 
-    ## 
-    ## Coefficients:
-    ##                            Estimate Std. Error t value Pr(>|t|)
-    ## (Intercept)                  0.3949     4.0955   0.096    0.924
-    ## gini_index                  -4.5056     8.8720  -0.508    0.614
-    ## unemploymentlow             -5.7911     4.9591  -1.168    0.250
-    ## gini_index:unemploymentlow  13.6427    10.8525   1.257    0.216
-    ## 
-    ## Residual standard error: 0.5364 on 39 degrees of freedom
-    ## Multiple R-squared:  0.1627, Adjusted R-squared:  0.09833 
-    ## F-statistic: 2.527 on 3 and 39 DF,  p-value: 0.07146
-
-``` r
-interact_plot(fit_2, pred = gini_index, modx = unemployment)
-```
-
-<img src="data_exploration_files/figure-gfm/unnamed-chunk-19-2.png" width="90%" />
-
-``` r
-fit_3 = lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree *gini_index, data = crime_trans)
-summary(fit_3)
+# high urbanization
+reg_5<-lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree, data=int_3)
+  summary(reg_5) # significant!
 ```
 
     ## 
     ## Call:
-    ## lm(formula = hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree * 
-    ##     gini_index, data = crime_trans)
+    ## lm(formula = hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree, 
+    ##     data = int_3)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -1.2244 -0.3066  0.1164  0.3769  0.7376 
+    ## 
+    ## Coefficients:
+    ##                                         Estimate Std. Error t value Pr(>|t|)  
+    ## (Intercept)                               -8.759      3.418  -2.563   0.0185 *
+    ## perc_population_with_high_school_degree    8.509      3.971   2.142   0.0446 *
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 0.5409 on 20 degrees of freedom
+    ## Multiple R-squared:  0.1867, Adjusted R-squared:  0.146 
+    ## F-statistic:  4.59 on 1 and 20 DF,  p-value: 0.04464
+
+``` r
+# low urbanization
+reg_6<-lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree, data=int_4)
+  summary(reg_6) # not significant
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree, 
+    ##     data = int_4)
     ## 
     ## Residuals:
     ##      Min       1Q   Median       3Q      Max 
-    ## -1.24364 -0.41188  0.05797  0.41459  0.96309 
+    ## -0.95634 -0.40840 -0.02925  0.48099  0.93148 
     ## 
     ## Coefficients:
-    ##                                                    Estimate Std. Error t value
-    ## (Intercept)                                           12.44      75.09   0.166
-    ## perc_population_with_high_school_degree              -20.90      84.97  -0.246
-    ## gini_index                                           -46.79     163.63  -0.286
-    ## perc_population_with_high_school_degree:gini_index    64.70     185.47   0.349
-    ##                                                    Pr(>|t|)
-    ## (Intercept)                                           0.869
-    ## perc_population_with_high_school_degree               0.807
-    ## gini_index                                            0.776
-    ## perc_population_with_high_school_degree:gini_index    0.729
+    ##                                         Estimate Std. Error t value Pr(>|t|)
+    ## (Intercept)                               -4.604      2.971   -1.55    0.138
+    ## perc_population_with_high_school_degree    3.504      3.404    1.03    0.316
     ## 
-    ## Residual standard error: 0.5402 on 39 degrees of freedom
-    ## Multiple R-squared:  0.1508, Adjusted R-squared:  0.08553 
-    ## F-statistic: 2.309 on 3 and 39 DF,  p-value: 0.09138
+    ## Residual standard error: 0.5507 on 19 degrees of freedom
+    ## Multiple R-squared:  0.05284,    Adjusted R-squared:  0.002994 
+    ## F-statistic:  1.06 on 1 and 19 DF,  p-value: 0.3161
 
 ``` r
-interact_plot(fit_3, pred = perc_population_with_high_school_degree, modx = gini_index)
+# Median_household income and gini index
+reg_gin<-lm(hate_crimes_per_100k_splc ~ median_household_income* gini_index, data=crime)
+  summary(reg_gin)
 ```
 
-<img src="data_exploration_files/figure-gfm/unnamed-chunk-19-3.png" width="90%" />
+    ## 
+    ## Call:
+    ## lm(formula = hate_crimes_per_100k_splc ~ median_household_income * 
+    ##     gini_index, data = crime)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -1.31961 -0.35251  0.05307  0.36962  1.03199 
+    ## 
+    ## Coefficients:
+    ##                                      Estimate Std. Error t value Pr(>|t|)
+    ## (Intercept)                         1.887e+01  1.587e+01   1.189    0.241
+    ## median_household_income            -3.603e-04  2.662e-04  -1.353    0.184
+    ## gini_index                         -4.657e+01  3.470e+01  -1.342    0.187
+    ## median_household_income:gini_index  8.262e-04  5.838e-04   1.415    0.165
+    ## 
+    ## Residual standard error: 0.5544 on 39 degrees of freedom
+    ## Multiple R-squared:  0.1056, Adjusted R-squared:  0.03681 
+    ## F-statistic: 1.535 on 3 and 39 DF,  p-value: 0.2207
 
-Check 3\_way interactions between predictors
+``` r
+    interact_plot(reg_gin, pred = median_household_income, modx = gini_index ) # not significant
+```
+
+<img src="data_exploration_files/figure-gfm/unnamed-chunk-21-4.png" width="90%" />
+There appears to be a significant interaction between urbanization and
+percent\_pop with high school degree.
+
+Check 3\_way interactions between predictors of interest
 
 ``` r
 fit_4 = lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree *unemployment* gini_index, data = crime_trans)
@@ -1637,4 +1817,48 @@ probe_interaction(fit_4, pred = perc_population_with_high_school_degree, modx = 
     ## ------ ------ -------- ------
     ##   9.80   6.18     1.59   0.12
 
-<img src="data_exploration_files/figure-gfm/unnamed-chunk-20-1.png" width="90%" />
+<img src="data_exploration_files/figure-gfm/unnamed-chunk-22-1.png" width="90%" />
+
+Conclusion: There are no significant interactions between our predictors
+of interest
+
+``` r
+# compare models
+main = lm(hate_crimes_per_100k_splc~gini_index, data = crime_trans) ## Model with main predictor
+broom::glance(main)
+```
+
+    ## # A tibble: 1 x 12
+    ##   r.squared adj.r.squared sigma statistic p.value    df logLik   AIC   BIC
+    ##       <dbl>         <dbl> <dbl>     <dbl>   <dbl> <dbl>  <dbl> <dbl> <dbl>
+    ## 1  0.000257       -0.0241 0.572    0.0106   0.919     1  -35.9  77.9  83.2
+    ## # ... with 3 more variables: deviance <dbl>, df.residual <int>, nobs <int>
+
+``` r
+final_rec
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + 
+    ##     gini_index, data = crime_trans)
+    ## 
+    ## Coefficients:
+    ##                             (Intercept)  
+    ##                                -12.8782  
+    ##                         unemploymentlow  
+    ##                                  0.3223  
+    ## perc_population_with_high_school_degree  
+    ##                                  6.8299  
+    ##                              gini_index  
+    ##                                 11.6847
+
+``` r
+broom::glance(final_rec) # our final recommended model
+```
+
+    ## # A tibble: 1 x 12
+    ##   r.squared adj.r.squared sigma statistic p.value    df logLik   AIC   BIC
+    ##       <dbl>         <dbl> <dbl>     <dbl>   <dbl> <dbl>  <dbl> <dbl> <dbl>
+    ## 1     0.211         0.150 0.521      3.47  0.0251     3  -30.9  71.7  80.5
+    ## # ... with 3 more variables: deviance <dbl>, df.residual <int>, nobs <int>
