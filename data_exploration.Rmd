@@ -354,8 +354,7 @@ Check 3_way interactions between predictors
 
 fit_4 = lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree *unemployment* gini_index, data = crime_trans)
 summary(fit_4)
-probe_interaction(fit_4, pred = perc_population_with_high_school_degree, modx = unemployment, mod2 = gini_index,
-                  alpha = .1)
+probe_interaction(fit_4, pred = perc_population_with_high_school_degree, modx = unemployment, mod2 = gini_index, alpha = .1)
 ```
 
 Conclusion: There are no significant interactions between the predictors.
@@ -364,3 +363,48 @@ Conclusion: There are no significant interactions between the predictors.
 
 ```
 
+
+
+
+
+
+
+
+
+
+
+## everything below can be deleted
+
+
+
+stepwise with all two-way interactions for full transformed data.
+```{r}
+trans_full_df = 
+  crime_df %>% 
+  mutate(
+    hate_crimes_per_100k_splc = log(hate_crimes_per_100k_splc)
+  )
+```
+
+```{r}
+mod_trans_2way = lm(hate_crimes_per_100k_splc ~ (unemployment + perc_population_with_high_school_degree + gini_index)^2, data = trans_full_df)
+step(mod_trans_2way, direction='backward')
+```
+
+stepwise with all three-way interactions for full transformed data.
+```{r}
+mod_trans_3way = lm(hate_crimes_per_100k_splc ~ (unemployment + perc_population_with_high_school_degree + gini_index)^3, data = trans_full_df)
+step(mod_trans_3way, direction='backward')
+```
+
+stepwise with all two-way interactions for full non-transformed data.
+```{r}
+mod_2way = lm(hate_crimes_per_100k_splc ~ (unemployment + perc_population_with_high_school_degree + gini_index)^2, data = crime_df)
+step(mod_2way, direction='backward')
+```
+
+stepwise with all three-way interactions for full non-transformed data.
+```{r}
+mod_3way = lm(hate_crimes_per_100k_splc ~ (unemployment + perc_population_with_high_school_degree + gini_index)^3, data = crime_df)
+step(mod_3way, direction='backward')
+```
