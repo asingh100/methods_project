@@ -10,10 +10,10 @@ output: github_document
 ```{r setup, include = FALSE, message = FALSE}
 library(tidyverse)
 library(arsenal)
-library(HH)
 library(MASS)
 library(zoo)
 library(interactions)
+library(HH)
 
 knitr::opts_chunk$set(
   fig.width = 6,
@@ -417,3 +417,32 @@ mod_3way = lm(hate_crimes_per_100k_splc ~ (unemployment + perc_population_with_h
 step(mod_3way, direction='backward')
 ```
 
+### Model Diagnosis:
+
+Use diagnostic plots to check model assumptions:
+```{r, message=FALSE, warning=FALSE}
+plot(final_rec)
+```
+1. Residuals vs. Fitted Plot: The points show a random patter and are evenly spread above and below the line of 0. The red line is approximately horizontal and is bouncing around the line of 0. This graph shows that this model fit the assumption of homoscedasiticity.
+
+2. Normal Q-Q Plot: All points align in an approximately straight line with no significant departure. This graph indicates that the residuals are normal.
+
+3. Scale-Location Plot: Similar with the residual vs. fitted plot, points in the graph are randomly and equally spread. The red line is approximately horizontal indicating that the variance of the model is equal.
+
+4. Residuals vs. Leverage Plot: Although there is a bounce in the line, the overall line is approximately horizontal around the 0. Points are not randomly spread and are lump together between 0.05 and 0.10. There is no point beyond the Cook's distance so we could assume that there is no significant influential point.
+
+Overall, these four graphs show that this fitted model is good for represent the data.
+
+Check for outlier:
+```{r}
+stu_res <- rstandard(final_rec)
+outliers_y <- stu_res[abs(stu_res)>2.5]
+outliers_y
+```
+Result: there is no outlier in Y.
+
+Check for multicollinearity:
+```{r}
+vif(final_rec)
+```
+Result: None of the parameter has variance inflation factor (VIF) value greater than 5 indicating that there is no multicollinearity in this model.
