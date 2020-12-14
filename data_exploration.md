@@ -1197,6 +1197,11 @@ predictors:**
 
 ``` r
 library(leaps)
+```
+
+    ## Warning: package 'leaps' was built under R version 4.0.3
+
+``` r
 #start with model using all predictors: 
 crime_trans = crime_df_no_outlier%>%
   mutate(
@@ -1370,19 +1375,11 @@ final_rec_df = final_rec%>%broom::tidy()
 final_rec %>% broom::glance()
 ```
 
-    ## Warning: `...` is not empty.
-    ## 
-    ## We detected these problematic arguments:
-    ## * `needs_dots`
-    ## 
-    ## These dots only exist to allow future extensions and should be empty.
-    ## Did you misspecify an argument?
-
-    ## # A tibble: 1 x 11
+    ## # A tibble: 1 x 12
     ##   r.squared adj.r.squared sigma statistic p.value    df logLik   AIC   BIC
-    ##       <dbl>         <dbl> <dbl>     <dbl>   <dbl> <int>  <dbl> <dbl> <dbl>
-    ## 1     0.211         0.150 0.521      3.47  0.0251     4  -30.9  71.7  80.5
-    ## # … with 2 more variables: deviance <dbl>, df.residual <int>
+    ##       <dbl>         <dbl> <dbl>     <dbl>   <dbl> <dbl>  <dbl> <dbl> <dbl>
+    ## 1     0.211         0.150 0.521      3.47  0.0251     3  -30.9  71.7  80.5
+    ## # ... with 3 more variables: deviance <dbl>, df.residual <int>, nobs <int>
 
 ``` r
 #Model with all variables:
@@ -1390,19 +1387,11 @@ final_rec %>% broom::glance()
 mod_trans %>% broom::glance()
 ```
 
-    ## Warning: `...` is not empty.
-    ## 
-    ## We detected these problematic arguments:
-    ## * `needs_dots`
-    ## 
-    ## These dots only exist to allow future extensions and should be empty.
-    ## Did you misspecify an argument?
-
-    ## # A tibble: 1 x 11
+    ## # A tibble: 1 x 12
     ##   r.squared adj.r.squared sigma statistic p.value    df logLik   AIC   BIC
-    ##       <dbl>         <dbl> <dbl>     <dbl>   <dbl> <int>  <dbl> <dbl> <dbl>
-    ## 1     0.219        0.0631 0.547      1.40   0.235     8  -30.6  79.3  95.1
-    ## # … with 2 more variables: deviance <dbl>, df.residual <int>
+    ##       <dbl>         <dbl> <dbl>     <dbl>   <dbl> <dbl>  <dbl> <dbl> <dbl>
+    ## 1     0.219        0.0631 0.547      1.40   0.235     7  -30.6  79.3  95.1
+    ## # ... with 3 more variables: deviance <dbl>, df.residual <int>, nobs <int>
 
 R squared is around the same for both models, however final model has
 138% improvement in adjusted R squared compared to model that contains
@@ -1424,14 +1413,6 @@ lm_fit_df = broom::tidy(lm.fit)
 lm_fit_df
 ```
 
-    ## Warning: `...` is not empty.
-    ## 
-    ## We detected these problematic arguments:
-    ## * `needs_dots`
-    ## 
-    ## These dots only exist to allow future extensions and should be empty.
-    ## Did you misspecify an argument?
-
     ## # A tibble: 29 x 5
     ##    term                                    estimate  std.error statistic p.value
     ##    <chr>                                      <dbl>      <dbl>     <dbl>   <dbl>
@@ -1439,13 +1420,13 @@ lm_fit_df
     ##  2 unemploymentlow                        18.4         1.94e+1    0.947   0.360 
     ##  3 urbanizationlow                        28.7         2.92e+1    0.983   0.342 
     ##  4 median_household_income                -0.00394     1.77e-3   -2.23    0.0427
-    ##  5 perc_population_with_high_school_de…  752.          3.96e+2    1.90    0.0786
+    ##  5 perc_population_with_high_school_de~  752.          3.96e+2    1.90    0.0786
     ##  6 perc_non_citizen                       83.2         8.58e+2    0.0970  0.924 
     ##  7 gini_index                            862.          6.57e+2    1.31    0.211 
     ##  8 perc_non_white                         59.3         2.03e+2    0.293   0.774 
     ##  9 unemploymentlow:urbanizationlow         0.798       1.05e+0    0.764   0.458 
-    ## 10 unemploymentlow:median_household_in…    0.000258    9.72e-5    2.65    0.0188
-    ## # … with 19 more rows
+    ## 10 unemploymentlow:median_household_in~    0.000258    9.72e-5    2.65    0.0188
+    ## # ... with 19 more rows
 
 ``` r
 # obtain significant interactions
@@ -1457,20 +1438,12 @@ all_int =
 all_int # these are the significant interactions present in our data
 ```
 
-    ## Warning: `...` is not empty.
-    ## 
-    ## We detected these problematic arguments:
-    ## * `needs_dots`
-    ## 
-    ## These dots only exist to allow future extensions and should be empty.
-    ## Did you misspecify an argument?
-
     ## # A tibble: 4 x 5
     ##   term                                      estimate std.error statistic p.value
     ##   <chr>                                        <dbl>     <dbl>     <dbl>   <dbl>
     ## 1 unemploymentlow:median_household_income   0.000258   9.72e-5      2.65  0.0188
     ## 2 urbanizationlow:median_household_income   0.000270   1.21e-4      2.22  0.0431
-    ## 3 urbanizationlow:perc_population_with_h… -62.2        2.78e+1     -2.24  0.0421
+    ## 3 urbanizationlow:perc_population_with_h~ -62.2        2.78e+1     -2.24  0.0421
     ## 4 median_household_income:gini_index        0.00769    3.02e-3      2.55  0.0232
 
 From the analysis above, we see 4 significant interactions: unemployment
@@ -1524,14 +1497,6 @@ reg_med<-lm(hate_crimes_per_100k_splc ~ median_household_income *unemployment, d
       broom::tidy(reg_1) #  not significant
 ```
 
-    ## Warning: `...` is not empty.
-    ## 
-    ## We detected these problematic arguments:
-    ## * `needs_dots`
-    ## 
-    ## These dots only exist to allow future extensions and should be empty.
-    ## Did you misspecify an argument?
-
     ## # A tibble: 2 x 5
     ##   term                       estimate std.error statistic p.value
     ##   <chr>                         <dbl>     <dbl>     <dbl>   <dbl>
@@ -1544,14 +1509,6 @@ reg_med<-lm(hate_crimes_per_100k_splc ~ median_household_income *unemployment, d
     reg_2<-lm(hate_crimes_per_100k_splc ~ median_household_income, data=int_2)
      broom::tidy(reg_2) # not significant
 ```
-
-    ## Warning: `...` is not empty.
-    ## 
-    ## We detected these problematic arguments:
-    ## * `needs_dots`
-    ## 
-    ## These dots only exist to allow future extensions and should be empty.
-    ## Did you misspecify an argument?
 
     ## # A tibble: 2 x 5
     ##   term                      estimate std.error statistic p.value
@@ -1605,14 +1562,6 @@ interact_plot(reg_med_2, pred = median_household_income, modx = urbanization )
       broom::tidy(reg_3) #  not significant
 ```
 
-    ## Warning: `...` is not empty.
-    ## 
-    ## We detected these problematic arguments:
-    ## * `needs_dots`
-    ## 
-    ## These dots only exist to allow future extensions and should be empty.
-    ## Did you misspecify an argument?
-
     ## # A tibble: 2 x 5
     ##   term                      estimate std.error statistic p.value
     ##   <chr>                        <dbl>     <dbl>     <dbl>   <dbl>
@@ -1625,14 +1574,6 @@ interact_plot(reg_med_2, pred = median_household_income, modx = urbanization )
     reg_4<-lm(hate_crimes_per_100k_splc ~ median_household_income, data=int_4)
      broom::tidy(reg_4) # not significant
 ```
-
-    ## Warning: `...` is not empty.
-    ## 
-    ## We detected these problematic arguments:
-    ## * `needs_dots`
-    ## 
-    ## These dots only exist to allow future extensions and should be empty.
-    ## Did you misspecify an argument?
 
     ## # A tibble: 2 x 5
     ##   term                       estimate std.error statistic p.value
@@ -1827,7 +1768,7 @@ probe_interaction(fit_4, pred = perc_population_with_high_school_degree, modx = 
 
     ## Warning: Johnson-Neyman intervals are not available for factor moderators.
 
-    ## ███████████████ While gini_index (2nd moderator) = 0.44 (- 1 SD) ███████████████ 
+    ## ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ While gini_index (2nd moderator) = 0.44 (- 1 SD) ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ 
     ## 
     ## SIMPLE SLOPES ANALYSIS 
     ## 
@@ -1843,7 +1784,7 @@ probe_interaction(fit_4, pred = perc_population_with_high_school_degree, modx = 
     ## ------ ------ -------- ------
     ##   8.98   7.26     1.24   0.22
     ## 
-    ## ████████████████ While gini_index (2nd moderator) = 0.45 (Mean) ████████████████ 
+    ## ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ While gini_index (2nd moderator) = 0.45 (Mean) ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ 
     ## 
     ## SIMPLE SLOPES ANALYSIS 
     ## 
@@ -1859,7 +1800,7 @@ probe_interaction(fit_4, pred = perc_population_with_high_school_degree, modx = 
     ## ------ ------ -------- ------
     ##   9.39   5.10     1.84   0.07
     ## 
-    ## ███████████████ While gini_index (2nd moderator) = 0.47 (+ 1 SD) ███████████████ 
+    ## ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ While gini_index (2nd moderator) = 0.47 (+ 1 SD) ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ 
     ## 
     ## SIMPLE SLOPES ANALYSIS 
     ## 
@@ -1886,19 +1827,11 @@ main = lm(hate_crimes_per_100k_splc~gini_index, data = crime_trans) ## Model wit
 broom::glance(main)
 ```
 
-    ## Warning: `...` is not empty.
-    ## 
-    ## We detected these problematic arguments:
-    ## * `needs_dots`
-    ## 
-    ## These dots only exist to allow future extensions and should be empty.
-    ## Did you misspecify an argument?
-
-    ## # A tibble: 1 x 11
+    ## # A tibble: 1 x 12
     ##   r.squared adj.r.squared sigma statistic p.value    df logLik   AIC   BIC
-    ##       <dbl>         <dbl> <dbl>     <dbl>   <dbl> <int>  <dbl> <dbl> <dbl>
-    ## 1  0.000257       -0.0241 0.572    0.0106   0.919     2  -35.9  77.9  83.2
-    ## # … with 2 more variables: deviance <dbl>, df.residual <int>
+    ##       <dbl>         <dbl> <dbl>     <dbl>   <dbl> <dbl>  <dbl> <dbl> <dbl>
+    ## 1  0.000257       -0.0241 0.572    0.0106   0.919     1  -35.9  77.9  83.2
+    ## # ... with 3 more variables: deviance <dbl>, df.residual <int>, nobs <int>
 
 ``` r
 final_rec
@@ -1923,19 +1856,11 @@ final_rec
 broom::glance(final_rec) # our final recommended model
 ```
 
-    ## Warning: `...` is not empty.
-    ## 
-    ## We detected these problematic arguments:
-    ## * `needs_dots`
-    ## 
-    ## These dots only exist to allow future extensions and should be empty.
-    ## Did you misspecify an argument?
-
-    ## # A tibble: 1 x 11
+    ## # A tibble: 1 x 12
     ##   r.squared adj.r.squared sigma statistic p.value    df logLik   AIC   BIC
-    ##       <dbl>         <dbl> <dbl>     <dbl>   <dbl> <int>  <dbl> <dbl> <dbl>
-    ## 1     0.211         0.150 0.521      3.47  0.0251     4  -30.9  71.7  80.5
-    ## # … with 2 more variables: deviance <dbl>, df.residual <int>
+    ##       <dbl>         <dbl> <dbl>     <dbl>   <dbl> <dbl>  <dbl> <dbl> <dbl>
+    ## 1     0.211         0.150 0.521      3.47  0.0251     3  -30.9  71.7  80.5
+    ## # ... with 3 more variables: deviance <dbl>, df.residual <int>, nobs <int>
 
 ## everything below can be deleted
 

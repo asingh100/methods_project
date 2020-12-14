@@ -1,0 +1,21 @@
+---
+title: "Report"
+output: word_document
+---
+Group Members: Hanfei Qi, Anmol Singh, Wuraola Olawole, Ting Lian
+
+## Abstract
+
+## Introduction
+
+## Methods
+
+## Results
+
+## Conclusion/Discussion
+
+
+## References
+
+
+
