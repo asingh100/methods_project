@@ -8,7 +8,11 @@ Group Members: Hanfei Qi, Anmol Singh, Wuraola Olawole, Ting Lian
 
 
 ## Introduction
-
+Hate crime is a type of offense based on discrimination. Offender of a hate crime is motivated in whole or in part by his/her bias against a race, disability, ethnicity, gender, religion, sexual orientation, or gender identity (https://www.fbi.gov/investigate/civil-rights/hate-crimes).
+  
+Since hate crimes have a significant effect to families and communities compare to most type of crimes, they become the highest priority of the FBI's civil rights program (https://www.fbi.gov/investigate/civil-rights/hate-crimes). 
+  
+An article used data from FBI and a self-reported survey to analysis the association between hate crime (outcome) and different variables (potential predictors). The author concluded that the income inequality was the most significant predictor of hate crime. In this project, we would like to use the author's data to build our own model and check if the author's conclusion was correct. Potential predictors included level of state unemployment (low/high), level of state urbanization (high/low), median household income per state, percentage of adults (>25 yrs.) with a high school degree, percentage of population that are not US citizens, percentage of population that are non-white, Gini index that measuring income inequality (range 0-100).
 
 ## Methods
 ### Data Exploration
@@ -32,4 +36,10 @@ Group Members: Hanfei Qi, Anmol Singh, Wuraola Olawole, Ting Lian
 ## References
 
 
+
+
+```{r word count}
+# use this code to do work count!
+# wordcountaddin::text_stats("Report.Rmd")
+```
 
