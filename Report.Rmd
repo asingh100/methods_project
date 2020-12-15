@@ -6,11 +6,25 @@ Group Members: Hanfei Qi, Anmol Singh, Wuraola Olawole, Ting Lian
 
 ## Abstract
 
+
 ## Introduction
 
+
 ## Methods
+### Data Exploration
+
+### Modeling
+
+### Model Diagnostics
+
 
 ## Results
+### Data Exploration
+
+### Modeling
+
+### Model Diagnostics
+
 
 ## Conclusion/Discussion
 
