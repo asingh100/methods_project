@@ -1768,7 +1768,7 @@ probe_interaction(fit_4, pred = perc_population_with_high_school_degree, modx = 
 
     ## Warning: Johnson-Neyman intervals are not available for factor moderators.
 
-    ## ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ While gini_index (2nd moderator) = 0.44 (- 1 SD) ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ 
+    ## ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ While gini_index (2nd moderator) = 0.44 (- 1 SD) ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ 
     ## 
     ## SIMPLE SLOPES ANALYSIS 
     ## 
@@ -1784,7 +1784,7 @@ probe_interaction(fit_4, pred = perc_population_with_high_school_degree, modx = 
     ## ------ ------ -------- ------
     ##   8.98   7.26     1.24   0.22
     ## 
-    ## ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ While gini_index (2nd moderator) = 0.45 (Mean) ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ 
+    ## ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ While gini_index (2nd moderator) = 0.45 (Mean) ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ 
     ## 
     ## SIMPLE SLOPES ANALYSIS 
     ## 
@@ -1800,7 +1800,7 @@ probe_interaction(fit_4, pred = perc_population_with_high_school_degree, modx = 
     ## ------ ------ -------- ------
     ##   9.39   5.10     1.84   0.07
     ## 
-    ## ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ While gini_index (2nd moderator) = 0.47 (+ 1 SD) ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ 
+    ## ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ While gini_index (2nd moderator) = 0.47 (+ 1 SD) ¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦ 
     ## 
     ## SIMPLE SLOPES ANALYSIS 
     ## 
@@ -1832,6 +1832,29 @@ broom::glance(main)
     ##       <dbl>         <dbl> <dbl>     <dbl>   <dbl> <dbl>  <dbl> <dbl> <dbl>
     ## 1  0.000257       -0.0241 0.572    0.0106   0.919     1  -35.9  77.9  83.2
     ## # ... with 3 more variables: deviance <dbl>, df.residual <int>, nobs <int>
+
+``` r
+final = lm(formula = hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + gini_index, data = int_3)
+broom::glance(final)
+```
+
+    ## # A tibble: 1 x 12
+    ##   r.squared adj.r.squared sigma statistic p.value    df logLik   AIC   BIC
+    ##       <dbl>         <dbl> <dbl>     <dbl>   <dbl> <dbl>  <dbl> <dbl> <dbl>
+    ## 1     0.364         0.258 0.504      3.43  0.0392     3  -13.9  37.9  43.3
+    ## # ... with 3 more variables: deviance <dbl>, df.residual <int>, nobs <int>
+
+``` r
+broom::tidy(final)
+```
+
+    ## # A tibble: 4 x 5
+    ##   term                                    estimate std.error statistic p.value
+    ##   <chr>                                      <dbl>     <dbl>     <dbl>   <dbl>
+    ## 1 (Intercept)                              -12.7       5.87      -2.16  0.0446
+    ## 2 unemploymentlow                            0.466     0.232      2.01  0.0601
+    ## 3 perc_population_with_high_school_degree    8.20      4.28       1.92  0.0714
+    ## 4 gini_index                                 8.65      7.21       1.20  0.246
 
 ``` r
 final_rec

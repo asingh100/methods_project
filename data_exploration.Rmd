@@ -377,6 +377,10 @@ Conclusion: There are no significant interactions between our predictors of inte
 main = lm(hate_crimes_per_100k_splc~gini_index, data = crime_trans) ## Model with main predictor
 broom::glance(main)
 
+final = lm(formula = hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + gini_index, data = int_3)
+broom::glance(final)
+broom::tidy(final)
+
 final_rec
 broom::glance(final_rec) # our final recommended model
 ```
