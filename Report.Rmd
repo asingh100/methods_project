@@ -11,6 +11,7 @@ library(MASS)
 library(zoo)
 library(interactions)
 library(HH)
+library(patchwork)
 
 knitr::opts_chunk$set(
   fig.width = 6,
@@ -30,11 +31,12 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 ## Abstract
+
 In the most recent years, America has seen an increase in the occurrences of hate crimes. These crimes are often based on biases such as religious, race, and sexual orientations and these have become a source of concern to the FBI. In the initial analysis published by FiveThirtyEight, it was shown that income inequality was the main predictor of hate crimes, We worked with a dataset containing details on hate crimes occurring in several states to explore and identify other variables that are associated with hate crimes and predict this outcome.
 
-Our method and approach to exploring these associations started with data exploration. Here we generated a table to observe the datasets and then we also used visual and graphical represent to further explore the distribution of our data. In our modeling approach, we tested the association published by FiveThirtyEight from their findings. We also tested for multicolinearity to assess for highly correlated variables; we performed a stepwise regression procedure to remove variables that did not contribute significantly to our model and checked for interactions. Finally, we performed a model diagnostics and checked for model assumptions and goodness of fit.  
+Our method and approach to exploring these associations started with data exploration. Here we generated a table to observe the datasets and then we also used visual and graphical representation to further explore the distribution of our data. In our modeling approach, we tested the association published by FiveThirtyEight from their findings. We also tested for multicolinearity to assess for highly correlated variables; we performed a stepwise regression procedure to remove variables that did not contribute significantly to our model and checked for interactions. Finally, we performed a model diagnostics and checked for model assumptions and goodness of fit.  
 
-In our analysis, we found that there were missing data, we found that distribution of the outcome was skewed and we also found some outliers. We removed the outliers and did a log transformation for the outcome. Some our the variables in our data were highly correlation e.g unemployment and median household income. We conducted some research using external sources to better understand the relationship between these variables. In our stepwise regression procedure, we did a backward elimination which left us with only three predictors: gini index, percent popopulation with highschool degree, and unemployment. In checking for interactions we found 3 significant 2-way interactions but upon further analysis(stratification) and tests they were not significant. 
+In our analysis, we found that there were missing data, we found that the distribution of the outcome was skewed and we also found some outliers. We removed the outliers and did a log transformation for the outcome. Some of the variables in our data were highly correlated e.g unemployment and median household income. We conducted some research using external sources to better understand the relationship between these variables. In our stepwise regression procedure, we did a backward elimination which left us with only three predictors: gini index, percent popopulation with highschool degree, and unemployment. In checking for interactions we found 3 significant 2-way interactions but upon further analysis(stratification) and tests they were not statistically significant. Finally in our model diagnostics we found that 
 
 
 conclusion
@@ -67,8 +69,7 @@ To check for multicolliniarity in the model we started by creating a correlation
 For this procedure we started out with a model with all possible predictor variables and used the R function `step` in the backward direction to eliminate non-essential predictors one by one based on their AIC value. The final model we ended up with used `unemployment`, `perc_population_with_high_school_degree`, and `gini_index` as predictors.
 
 #### Checking Interactions:
-After finding our final model we thought to check for interactions between the predictors in our model to see how that affects the associations between the predictors and the outcome.
-In checking for interactions we found 3 significant 2-way interactions but upon further analysis(through stratification) only one was significant. We performed further test on this significant interaction including the other predictors and found that it had less goodness of fit.
+After finding our final model we checked for interactions between the predictors in our model to see how that affects the associations between the predictors and the outcome.
 
 #### Model Diagnostics
 
@@ -87,60 +88,7 @@ We found that studies have shown that high income is correlated with increased e
 #### Stepwise Regression Procedure
 
 #### Checking Interactions
-We explored all 2-way interactions among all the variables. Here, we observed that there were three different interactions:
-
-```{r, echo = FALSE, message = FALSE, warning = FALSE}
-
-crime_df = 
-  read_csv("data/HateCrimes.csv") %>% 
-  mutate(
-    unemployment = factor(unemployment),
-    urbanization = factor(urbanization),
-    hate_crimes_per_100k_splc = as.numeric(hate_crimes_per_100k_splc)
-  )
-
-lower = quantile(crime_df$hate_crimes_per_100k_splc,0.25,na.rm = T)-(1.5*IQR(crime_df$hate_crimes_per_100k_splc,na.rm=T)) #determining lower bound for outlier
-upper = quantile(crime_df$hate_crimes_per_100k_splc,0.75, na.rm=T)+(1.5*IQR(crime_df$hate_crimes_per_100k_splc,na.rm=T)) #determining upper bound for outlier
-outliers = crime_df$state[(crime_df$hate_crimes_per_100k_splc>upper |crime_df$hate_crimes_per_100k_splc<lower)] #finding states that are outliers
-
-crime_df_no_outlier = crime_df%>%
-  filter(!state %in% outliers)
-```
-
-
-```{r, echo = FALSE, message = FALSE, warning = FALSE}
-
-crime_trans = crime_df_no_outlier %>%
-  mutate(
-    hate_crimes_per_100k_splc = log(hate_crimes_per_100k_splc)
-  ) %>%
-  drop_na()
-
-crime =
-  crime_trans %>%
- dplyr::select(-state)
-
-```
-
-
-```{r, echo = FALSE, warning = FALSE}
-
-    reg_med_2 <- lm(hate_crimes_per_100k_splc ~ median_household_income* urbanization, data = crime)
-        interact_plot(reg_med_2, pred = median_household_income, modx = urbanization )
-
-
-reg_per <- lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree* urbanization, data = crime)
-    interact_plot(reg_per, pred = perc_population_with_high_school_degree, modx = urbanization )
-    
-
-reg_gin <- lm(hate_crimes_per_100k_splc ~ median_household_income* gini_index, data = crime)
-    interact_plot(reg_gin, pred = median_household_income, modx = gini_index ) 
-
-```
-
-Next, we did a stratified analysis to further explore these interactions. From these we found that three of the interactions were not significant. The only significant interaction upon stratification was between urbanization and perc_population_with_high_school_degree: high urbanization affects the percentage of the population with high school degree. We also checked for 3-way interactions between our predictors of interest but found no significant interaction.
-
-
+We explored all 2-way interactions among all the variables. Here, we observed that there were three different interactions: median household income and urbanization (Figure 5), percentage of population with highschool degree and urbanization (Figure 6), median household income and gini index (Figure 7). Upon stratified analysis we found that 2 of the interactions were not significant, only percentage of population with highschool degree and urbanization was significant. We performed further test (ANOVA) on this  interaction and found no statistical evidence of an interaction (Table 2).
 #### Model Diagnostics
 
 
@@ -195,8 +143,10 @@ tab = tableby( ~ hate_crimes_per_100k_splc + unemployment + urbanization + media
                data = crime_df, 
                control = my_controls)
 
-summary(tab, text = T)
+summary(tab, text = T) %>%
+  knitr::kable()
 ```
+
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 crime_df %>% 
@@ -234,6 +184,67 @@ crime_df_no_na %>%
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
 ```
 Figure 4: Scatter plot of `hate_crimes_per_100k_splc` of each state, from lowest hate crime rate to highest crime rate.
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+
+
+lower = quantile(crime_df$hate_crimes_per_100k_splc,0.25,na.rm = T)-(1.5*IQR(crime_df$hate_crimes_per_100k_splc,na.rm=T)) #determining lower bound for outlier
+upper = quantile(crime_df$hate_crimes_per_100k_splc,0.75, na.rm=T)+(1.5*IQR(crime_df$hate_crimes_per_100k_splc,na.rm=T)) #determining upper bound for outlier
+outliers = crime_df$state[(crime_df$hate_crimes_per_100k_splc>upper |crime_df$hate_crimes_per_100k_splc<lower)] #finding states that are outliers
+
+crime_df_no_outlier = crime_df%>%
+  filter(!state %in% outliers)
+```
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+
+crime_trans = crime_df_no_outlier %>%
+  mutate(
+    hate_crimes_per_100k_splc = log(hate_crimes_per_100k_splc)
+  ) %>%
+  drop_na()
+
+crime =
+  crime_trans %>%
+ dplyr::select(-state)
+
+```
+
+Table 2: ANOVA Test, model with interaction
+```{r, echo = FALSE, warning=FALSE, message = FALSE}
+
+model_2 = anova(lm(formula = hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree* urbanization, data = crime_trans))
+
+model_int =
+  model_2 %>%
+    broom::tidy() %>%
+      knitr::kable()
+model_int
+ ## Model with an interaction btw perc_pop_with Hs degree and high urbanization
+
+```
+
+
+```{r, echo = FALSE, warning = FALSE, message=FALSE}
+
+    reg_med_2 <- lm(hate_crimes_per_100k_splc ~ median_household_income* urbanization, data = crime)
+        interact_plot(reg_med_2, pred = median_household_income, modx = urbanization )
+```
+Figure 5: An interaction plot, showing the interaction between median household income and urbanization
+
+```{r, echo = FALSE, warning = FALSE, message=FALSE}
+reg_per <- lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree* urbanization, data = crime)
+    interact_plot(reg_per, pred = perc_population_with_high_school_degree, modx = urbanization )
+```
+Figure 6:  An interaction plot, showing the interaction between percentage of population with highschool degree and urbanization
+
+```{r, echo = FALSE, warning = FALSE, message=FALSE}
+reg_gin <- lm(hate_crimes_per_100k_splc ~ median_household_income* gini_index, data = crime)
+    interact_plot(reg_gin, pred = median_household_income, modx = gini_index ) 
+
+```
+Figure 7: An interaction plot, showing the interaction between median household income and gini index
+
 
 ```{r word count}
 # use this code to do work count!
