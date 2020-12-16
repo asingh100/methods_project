@@ -363,7 +363,7 @@ reg_gin<-lm(hate_crimes_per_100k_splc ~ median_household_income* gini_index, dat
     interact_plot(reg_gin, pred = median_household_income, modx = gini_index ) # not significant
 
 ```
-There appears to be a significant interaction between urbanization and percent_pop with high school degree.
+With the plots, we observe that there actually just 3 interactions and there appears to be a significant interaction between urbanization and percent_pop with high school degree.
 
 
 Check 3_way interactions between predictors of interest
@@ -377,21 +377,19 @@ probe_interaction(fit_4, pred = perc_population_with_high_school_degree, modx = 
 
 Conclusion: There are no significant interactions between our predictors of interest
 
-```{r}
-# compare models
-model_1 = lm(hate_crimes_per_100k_splc~gini_index, data = crime_trans) ## Model with main predictor
-broom::glance(model_1)
+```{r, echo = FALSE, warning=FALSE, message = FALSE}
 
+model_2 = anova(lm(formula = hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree* urbanization, data = crime_trans))
 
-model_2 = lm(formula = hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree* urbanization + gini_index, data = crime_trans)
-broom::glance(model_2)
-broom::tidy(model_2) ## Model with an interaction btw perc_pop_with Hs degree and high urbanization
+model_int =
+  model_2 %>%
+    broom::tidy() %>%
+      knitr::kable()
+model_int
+ ## Model with an interaction btw perc_pop_with Hs degree and high urbanization
 
-
-final_rec
-broom::glance(final_rec) # our final recommended model
 ```
-In comparing all three models, model_2 has the highest adj. r_sq value and the least AIC and BIC.
+Further test shows no significant interaction
 
 
 ### Model Diagnosis:
