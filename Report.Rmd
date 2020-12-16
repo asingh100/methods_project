@@ -30,8 +30,9 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 ## Abstract
-Intro background
+In the most recent years, America has seen an increase in the occurrences of hate crimes. These crimes are often based on biases such as religious, race, and sexual orientations and these have become a source of concern to the FBI. In the initial analysis published by FiveThirtyEight, it was shown that income inequality was the main predictor of hate crimes, We worked with a dataset containing details on hate crimes occurring in several states to explore and identify other variables that are associated with hate crimes and predict this out.
 describe methodology
+Our method and approach to exploring these associations started with data exploration. Here we generated a table to observe the datasets and then we also used visual and graphical represent to further explore the distribution of our data. Next we tested the original   
 briefly describe findings
 conclusion
 

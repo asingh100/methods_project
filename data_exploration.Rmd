@@ -49,7 +49,7 @@ Descriptive statistics
 ```{r}
 my_controls =  tableby.control(
                total = F,
-               test=F,  
+               test = F,  
                numeric.stats = c("meansd", "medianq1q3", "range", "Nmiss2"),
                cat.stats = c("countpct", "Nmiss2"),
                stats.labels = list(
@@ -319,7 +319,8 @@ From the analysis above, we see 4 significant interactions: unemployment and med
 # Unemployment and median household income
 reg_med<-lm(hate_crimes_per_100k_splc ~ median_household_income *unemployment, data = crime)
   summary(reg_med)
-    interact_plot(reg_med, pred = median_household_income, modx = unemployment )
+    interact_plot(reg_med, pred = median_household_income, modx = unemployment ) ## interaction plot
+    
 # high unemployment
   int_1<-filter(crime, unemployment=="high") 
     reg_1<-lm(hate_crimes_per_100k_splc ~ median_household_income, data=int_1)
@@ -334,6 +335,7 @@ reg_med<-lm(hate_crimes_per_100k_splc ~ median_household_income *unemployment, d
 reg_med_2<-lm(hate_crimes_per_100k_splc ~ median_household_income* urbanization, data = crime)
 summary(reg_med_2)
 interact_plot(reg_med_2, pred = median_household_income, modx = urbanization )
+
 # high urbanization
   int_3<-filter(crime, urbanization=="high") 
     reg_3<-lm(hate_crimes_per_100k_splc ~ median_household_income, data=int_3)
@@ -347,6 +349,7 @@ interact_plot(reg_med_2, pred = median_household_income, modx = urbanization )
 reg_per<-lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree* urbanization, data=crime)
   summary(reg_per)
     interact_plot(reg_per, pred = perc_population_with_high_school_degree, modx = urbanization )
+    
 # high urbanization
 reg_5<-lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree, data=int_3)
   summary(reg_5) # significant!
@@ -379,9 +382,11 @@ Conclusion: There are no significant interactions between our predictors of inte
 model_1 = lm(hate_crimes_per_100k_splc~gini_index, data = crime_trans) ## Model with main predictor
 broom::glance(model_1)
 
-model_2 = lm(formula = hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + gini_index, data = int_3)
+
+model_2 = lm(formula = hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree* urbanization + gini_index, data = crime_trans)
 broom::glance(model_2)
 broom::tidy(model_2) ## Model with an interaction btw perc_pop_with Hs degree and high urbanization
+
 
 final_rec
 broom::glance(final_rec) # our final recommended model
