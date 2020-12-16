@@ -80,69 +80,21 @@ Table 1 showed that there were 4 NA’s in the variable `hate_crimes_per_100k_sp
 ### Modeling
 
 #### Checking Original Association
+When checking the association between income inequality and hate crime rate using the original data, we found that there is an significant linear relationship exists with p-value equals 0.024 (Table2). However, in the data exploration part, we found that the original data is heavily left skewed. So we also check the association using the log transformed data. The p-value for the association using transformed data was 0.311 (Table 3) indicating that the linear association between income inequality and hate crime rate is not significant.
 
 #### Checking Multicollinearity
 We found that studies have shown that high income is correlated with increased education and thus it would make sense that the median income and percentage of high school diploma holders are highly correlated [[4]](https://budgetmodel.wharton.upenn.edu/issues/2016/2/22/education-and-income-growth). Furthermore, a study conducted by the pew research center found that only 17.7% of immigrants are white non-hispanic which makes sense why the percentage of non citizens and the percentage of white people are very highly correlated as well [[5]](https://www.pewresearch.org/hispanic/2020/08/20/facts-on-u-s-immigrants-current-data/).
 
 #### Stepwise Regression Procedure
 
+
 #### Checking Interactions
-We explored all 2-way interactions among all the variables. Here, we observed that there were three different interactions:
-
-```{r, echo = FALSE, message = FALSE, warning = FALSE}
-
-crime_df = 
-  read_csv("data/HateCrimes.csv") %>% 
-  mutate(
-    unemployment = factor(unemployment),
-    urbanization = factor(urbanization),
-    hate_crimes_per_100k_splc = as.numeric(hate_crimes_per_100k_splc)
-  )
-
-lower = quantile(crime_df$hate_crimes_per_100k_splc,0.25,na.rm = T)-(1.5*IQR(crime_df$hate_crimes_per_100k_splc,na.rm=T)) #determining lower bound for outlier
-upper = quantile(crime_df$hate_crimes_per_100k_splc,0.75, na.rm=T)+(1.5*IQR(crime_df$hate_crimes_per_100k_splc,na.rm=T)) #determining upper bound for outlier
-outliers = crime_df$state[(crime_df$hate_crimes_per_100k_splc>upper |crime_df$hate_crimes_per_100k_splc<lower)] #finding states that are outliers
-
-crime_df_no_outlier = crime_df%>%
-  filter(!state %in% outliers)
-```
-
-
-```{r, echo = FALSE, message = FALSE, warning = FALSE}
-
-crime_trans = crime_df_no_outlier %>%
-  mutate(
-    hate_crimes_per_100k_splc = log(hate_crimes_per_100k_splc)
-  ) %>%
-  drop_na()
-
-crime =
-  crime_trans %>%
- dplyr::select(-state)
-
-```
-
-
-```{r, echo = FALSE, warning = FALSE}
-
-    reg_med_2 <- lm(hate_crimes_per_100k_splc ~ median_household_income* urbanization, data = crime)
-        interact_plot(reg_med_2, pred = median_household_income, modx = urbanization )
-
-
-reg_per <- lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree* urbanization, data = crime)
-    interact_plot(reg_per, pred = perc_population_with_high_school_degree, modx = urbanization )
-    
-
-reg_gin <- lm(hate_crimes_per_100k_splc ~ median_household_income* gini_index, data = crime)
-    interact_plot(reg_gin, pred = median_household_income, modx = gini_index ) 
-
-```
-
-Next, we did a stratified analysis to further explore these interactions. From these we found that three of the interactions were not significant. The only significant interaction upon stratification was between urbanization and perc_population_with_high_school_degree: high urbanization affects the percentage of the population with high school degree. We also checked for 3-way interactions between our predictors of interest but found no significant interaction.
-
+We explored all 2-way interactions among all the variables. Here, we observed that there were three different interactions (Figure 5). Next, we did a stratified analysis to further explore these interactions. From these we found that three of the interactions were not significant. The only significant interaction upon stratification was between urbanization and perc_population_with_high_school_degree: high urbanization affects the percentage of the population with high school degree. We also checked for 3-way interactions between our predictors of interest but found no significant interaction.
 
 #### Model Diagnostics
-
+We plotted the four diagnosis graphs after we got the final model (Figure 6). Points in the Residuals vs. Fitted plot show a random patter and are evenly spread above and below the line of 0. The red line is approximately horizontal and is bouncing around the line of 0. This graph shows that this model fit the assumption of homoscedasiticity. Similar pattern also shows in the Scale-Location plot indicating that the variance of the model is equal. No point in the Residual vs. Leverage plot is beyond the boundary of Cook's distance so we could assume that there is no significant influence point. In the Normal Q-Q Plot, all points align in an approximately straight line with no significant departure which indicates that the residuals are normal. Overall, these four graphs show that this fitted model is good for represent the data.
+There is no observation has absolute studentized residual value greater than 2.5. So we conlcude that there is no outlier in Y in the data and assume that there is no influential point. 
+The VIF values for the three predictors are 1.335 for unemploymentlow, 1.806 for gini_index and, 1.971 for perc_population_with_high_school_degree (Table 4). None of the predictor has variance inflation factor (VIF) value greater than 5 indicating that there is no multicollinearity in the final model.
 
 ## Conclusion/Discussion
 The final model included `unemployment`, `perc_population_with_high_school_degree`. and `gini_index` as predictors, without any interactions. We concluded that `gini_index` was not the only main predictor.
@@ -240,3 +192,86 @@ Figure 4: Scatter plot of `hate_crimes_per_100k_splc` of each state, from lowest
 # wordcountaddin::text_stats("Report.Rmd")
 ```
 
+Table 2: Testing Association Between Income Inequality & Hate Crime Rate Using Original Data
+```{r}
+income_hate_model_full_data = crime_df%>%
+  lm(hate_crimes_per_100k_splc~gini_index,data=.)
+
+income_hate_model_full_data%>%
+  broom::tidy()%>%
+  knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using all the data", format = "html")
+```
+
+Table 3: Testing Association Between Income Inequality & Hate Crime Rate Using Transformed Data
+```{r}
+income_hate_model_trans = crime_df%>%
+  mutate(
+    hate_crimes_per_100k_splc = log(hate_crimes_per_100k_splc)
+  )%>%
+  lm(hate_crimes_per_100k_splc~gini_index,data=.)
+
+income_hate_model_trans%>%
+  broom::tidy()%>%
+  knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using log transformed data", format = "html")
+```
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+
+crime_df = 
+  read_csv("data/HateCrimes.csv") %>% 
+  mutate(
+    unemployment = factor(unemployment),
+    urbanization = factor(urbanization),
+    hate_crimes_per_100k_splc = as.numeric(hate_crimes_per_100k_splc)
+  )
+
+lower = quantile(crime_df$hate_crimes_per_100k_splc,0.25,na.rm = T)-(1.5*IQR(crime_df$hate_crimes_per_100k_splc,na.rm=T)) #determining lower bound for outlier
+upper = quantile(crime_df$hate_crimes_per_100k_splc,0.75, na.rm=T)+(1.5*IQR(crime_df$hate_crimes_per_100k_splc,na.rm=T)) #determining upper bound for outlier
+outliers = crime_df$state[(crime_df$hate_crimes_per_100k_splc>upper |crime_df$hate_crimes_per_100k_splc<lower)] #finding states that are outliers
+
+crime_df_no_outlier = crime_df%>%
+  filter(!state %in% outliers)
+```
+
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+
+crime_trans = crime_df_no_outlier %>%
+  mutate(
+    hate_crimes_per_100k_splc = log(hate_crimes_per_100k_splc)
+  ) %>%
+  drop_na()
+
+crime =
+  crime_trans %>%
+ dplyr::select(-state)
+
+```
+
+
+```{r, echo = FALSE, warning = FALSE}
+
+    reg_med_2 <- lm(hate_crimes_per_100k_splc ~ median_household_income* urbanization, data = crime)
+        interact_plot(reg_med_2, pred = median_household_income, modx = urbanization )
+
+
+reg_per <- lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree* urbanization, data = crime)
+    interact_plot(reg_per, pred = perc_population_with_high_school_degree, modx = urbanization )
+    
+
+reg_gin <- lm(hate_crimes_per_100k_splc ~ median_household_income* gini_index, data = crime)
+    interact_plot(reg_gin, pred = median_household_income, modx = gini_index ) 
+
+```
+Figure 5: Two-way Interactions Among All Predictors
+
+```{r}
+final_rec = lm(formula = hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + gini_index, data = crime_trans)
+plot(final_rec)
+```
+Figure 6: Four Diagnosis Graphs For The Final Model
+
+Table 4: The VIF Values For The Final Model
+```{r}
+vif(final_rec)
+```
