@@ -30,10 +30,13 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 ## Abstract
-In the most recent years, America has seen an increase in the occurrences of hate crimes. These crimes are often based on biases such as religious, race, and sexual orientations and these have become a source of concern to the FBI. In the initial analysis published by FiveThirtyEight, it was shown that income inequality was the main predictor of hate crimes, We worked with a dataset containing details on hate crimes occurring in several states to explore and identify other variables that are associated with hate crimes and predict this out.
-describe methodology
-Our method and approach to exploring these associations started with data exploration. Here we generated a table to observe the datasets and then we also used visual and graphical represent to further explore the distribution of our data. Next we tested the original   
-briefly describe findings
+In the most recent years, America has seen an increase in the occurrences of hate crimes. These crimes are often based on biases such as religious, race, and sexual orientations and these have become a source of concern to the FBI. In the initial analysis published by FiveThirtyEight, it was shown that income inequality was the main predictor of hate crimes, We worked with a dataset containing details on hate crimes occurring in several states to explore and identify other variables that are associated with hate crimes and predict this outcome.
+
+Our method and approach to exploring these associations started with data exploration. Here we generated a table to observe the datasets and then we also used visual and graphical represent to further explore the distribution of our data. In our modeling approach, we tested the association published by FiveThirtyEight from their findings. We also tested for multicolinearity to assess for highly correlated variables; we performed a stepwise regression procedure to remove variables that did not contribute significantly to our model and checked for interactions. Finally, we performed a model diagnostics and checked for model assumptions and goodness of fit.  
+
+In our analysis, we found that there were missing data, we found that distribution of the outcome was skewed and we also found some outliers. We removed the outliers and did a log transformation for the outcome. Some our the variables in our data were highly correlation e.g unemployment and median household income. We conducted some research using external sources to better understand the relationship between these variables. In our stepwise regression procedure, we did a backward elimination which left us with only three predictors: gini index, percent popopulation with highschool degree, and unemployment. In checking for interactions we found 3 significant 2-way interactions but upon further analysis(stratification) and tests they were not significant. 
+
+
 conclusion
 
 ## Introduction
@@ -65,6 +68,7 @@ For this procedure we started out with a model with all possible predictor varia
 
 #### Checking Interactions:
 After finding our final model we thought to check for interactions between the predictors in our model to see how that affects the associations between the predictors and the outcome.
+In checking for interactions we found 3 significant 2-way interactions but upon further analysis(through stratification) only one was significant. We performed further test on this significant interaction including the other predictors and found that it had less goodness of fit.
 
 #### Model Diagnostics
 
