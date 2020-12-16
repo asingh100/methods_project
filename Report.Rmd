@@ -4,24 +4,56 @@ output: word_document
 ---
 Group Members: Hanfei Qi, Anmol Singh, Wuraola Olawole, Ting Lian
 
-## Abstract
+```{r setup, include = FALSE, message = FALSE}
+library(tidyverse)
+library(arsenal)
+library(MASS)
+library(zoo)
+library(interactions)
+library(HH)
 
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_color_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+## Abstract
+In the most recent years, America has seen an increase in the occurrences of hate crimes. These crimes are often based on biases such as religious, race, and sexual orientations and these have become a source of concern to the FBI. In the initial analysis published by FiveThirtyEight, it was shown that income inequality was the main predictor of hate crimes, We worked with a dataset containing details on hate crimes occurring in several states to explore and identify other variables that are associated with hate crimes and predict this outcome.
+
+Our method and approach to exploring these associations started with data exploration. Here we generated a table to observe the datasets and then we also used visual and graphical represent to further explore the distribution of our data. In our modeling approach, we tested the association published by FiveThirtyEight from their findings. We also tested for multicolinearity to assess for highly correlated variables; we performed a stepwise regression procedure to remove variables that did not contribute significantly to our model and checked for interactions. Finally, we performed a model diagnostics and checked for model assumptions and goodness of fit.  
+
+In our analysis, we found that there were missing data, we found that distribution of the outcome was skewed and we also found some outliers. We removed the outliers and did a log transformation for the outcome. Some our the variables in our data were highly correlation e.g unemployment and median household income. We conducted some research using external sources to better understand the relationship between these variables. In our stepwise regression procedure, we did a backward elimination which left us with only three predictors: gini index, percent popopulation with highschool degree, and unemployment. In checking for interactions we found 3 significant 2-way interactions but upon further analysis(stratification) and tests they were not significant. 
+
+
+conclusion
 
 ## Introduction
 
 Hate crimes in the United States has become a severe problem and their occurrence has been rising in recent years [[1]](https://www.bbc.com/news/world-us-canada-54968498). According to the FBI, a hate crime is a “criminal offense against a person or property motivated in whole or in part by an offender’s bias against a race, religion, disability, sexual orientation, ethnicity, gender, or gender identity.”[[2]](https://www.fbi.gov/investigate/civil-rights/hate-crimes) These types of crimes can have lasting impact and cause devastating effects to people due to the horrific nature of the crimes, which is why they are the highest priority of the FBI's civil rights program [[2]](https://www.fbi.gov/investigate/civil-rights/hate-crimes). 
   
-A previous study used data from FBI and a self-reported survey to analysis the association between hate crime rates (outcome) and different variables (potential predictors) [[3]](https://fivethirtyeight.com/features/higher-rates-of-hate-crimes-are-tied-to-income-inequality/). The author concluded that the income inequality was the most significant predictor of hate crime [[3]](https://fivethirtyeight.com/features/higher-rates-of-hate-crimes-are-tied-to-income-inequality/). In this project, our goal is to use the author's data to build our own model and check if the author's conclusion is correct as well as assess if any other factors may play a role in hate crime occurrence. Potential predictors include level of state unemployment (low/high), level of state urbanization (high/low), median household income per state, percentage of adults (>25 yrs.) with a high school degree, percentage of population that are not US citizens, percentage of population that are non-white, Gini index that measuring income inequality (range 0-100). Finding out what factors play a role in the occurrence of hate crimes may be able to help us curb the incidence of these horrible crimes in the United States. 
+A previous study used data from FBI and a self-reported survey to analysis the association between hate crime rates (outcome) and different variables (potential predictors) [[3]](https://fivethirtyeight.com/features/higher-rates-of-hate-crimes-are-tied-to-income-inequality/). The author concluded that the income inequality was the most significant predictor of hate crime [[3]](https://fivethirtyeight.com/features/higher-rates-of-hate-crimes-are-tied-to-income-inequality/). In this project, our goal is to use the author's data to build our own model, check if the author's conclusion is correct, as well as assess if any other factors may play a role in hate crime occurrence. Potential predictors include level of state unemployment (low/high), level of state urbanization (high/low), median household income per state, percentage of adults (>25 yrs.) with a high school degree, percentage of population that are not US citizens, percentage of population that are non-white, Gini index that measuring income inequality (range 0-100). Finding out what factors play a role in the occurrence of hate crimes may be able to help us curb the incidence of these horrible crimes in the United States. 
 
 ## Methods
 ### Data Exploration
 There are 8 variables in the dataset. Numerical variables are: `hate_crimes_per_100k_splc`, `median_household_income`, `perc_population_with_high_school_degree`, `perc_non_citizen`, `gini_index`, and `perc_non_white`, while categorical variables include: `unemployment`, and `urbanization`. Both categorical variables contain two levels: low, and high. All coding process was done by using RStudio.
 
-First, we generated a descriptive statistics table to observe the data. This included obtaining the mean, standard deviation (SD), median, 25% quantile (Q1), 75% quantile (Q3), minimum value, maximum value, and count of missing values for each numerical variable. For categorical variables, we obtained counts of each level, and a count of missing values.
+Firstly, we generated a descriptive statistics table (Table 1). This included the mean, standard deviation (SD), median, 25% quantile (Q1), 75% quantile (Q3), minimum value, maximum value, and count of missing values for each numerical variable. For categorical variables, we obtained counts of each level, and a count of missing values.
 
-Secondly, we generated a density plot of outcome to show its distribution by using the `ggplot` function. We, furthermore, used the `boxcox` function to find the optimal transformation of the outcome and then double-checked the distribution of transformed outcome.
+Secondly, we generated a density plot of outcome to show its distribution by using the `ggplot` function (Figure 1). We, furthermore, used the `boxcox` function to find the optimal transformation of the outcome and then double-checked the distribution of transformed outcome (Figure 2,3).
 
-Finally, we generated a scatter plot of `hate_crimes_per_100k_splc` versus `state`, from low hate crime rate to high crime rate, so we could observe any potential outliers.
+Finally, we generated a scatter plot of `hate_crimes_per_100k_splc` versus `state`, from low hate crime rate to high crime rate to observe any potential outliers (Figure 4).
 
 ### Modeling
 
@@ -36,13 +68,14 @@ For this procedure we started out with a model with all possible predictor varia
 
 #### Checking Interactions:
 After finding our final model we thought to check for interactions between the predictors in our model to see how that affects the associations between the predictors and the outcome.
+In checking for interactions we found 3 significant 2-way interactions but upon further analysis(through stratification) only one was significant. We performed further test on this significant interaction including the other predictors and found that it had less goodness of fit.
 
 #### Model Diagnostics
 For model diagnosis, we plotted four diagnosis plots of our final model to check the assumptions. We also checked the existence of outliers using the studentized residuals. Since there is no candidate for outlier, we did not further explore the existence of the influential point. Finally, the existence of multicollinearity was checked by the variance inflation factor (VIF).
 
 ## Results
 ### Data Exploration
-The table showed that there were 4 NA’s in the variable `hate_crimes_per_100k_splc` and 3 NA’s in the variable `perc_non_citizen`. The `low` level of `unemployment` and `urbanization` were similar, about 50% across 51 states. The distribution of the outcome variable was highly skewed to right. The box-cox transformation indicated that a natural logarithm transformation should be applied to the outcome variable. The distribution of transformed outcome variable was approximately normal. The scatter plot indicated that data from `District of Columbia` and `Oregon` could be potential outliers.
+Table 1 showed that there were 4 NA’s in the variable `hate_crimes_per_100k_splc` and 3 NA’s in the variable `perc_non_citizen`. The `low` level of `unemployment` and `urbanization` were similar, about 50% across 51 states. The distribution of the outcome variable was highly skewed to right (Figure 1). The box-cox transformation indicated that a natural logarithm transformation should be applied to the outcome variable (Figure 2). The distribution of transformed outcome variable was approximately normal (Figure 3). The scatter plot indicated that data from `District of Columbia` and `Oregon` could be potential outliers (Figure 4).
 
 ### Modeling
 
@@ -54,14 +87,65 @@ We found that studies have shown that high income is correlated with increased e
 #### Stepwise Regression Procedure
 
 #### Checking Interactions
+We explored all 2-way interactions among all the variables. Here, we observed that there were three different interactions:
 
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+
+crime_df = 
+  read_csv("data/HateCrimes.csv") %>% 
+  mutate(
+    unemployment = factor(unemployment),
+    urbanization = factor(urbanization),
+    hate_crimes_per_100k_splc = as.numeric(hate_crimes_per_100k_splc)
+  )
+
+lower = quantile(crime_df$hate_crimes_per_100k_splc,0.25,na.rm = T)-(1.5*IQR(crime_df$hate_crimes_per_100k_splc,na.rm=T)) #determining lower bound for outlier
+upper = quantile(crime_df$hate_crimes_per_100k_splc,0.75, na.rm=T)+(1.5*IQR(crime_df$hate_crimes_per_100k_splc,na.rm=T)) #determining upper bound for outlier
+outliers = crime_df$state[(crime_df$hate_crimes_per_100k_splc>upper |crime_df$hate_crimes_per_100k_splc<lower)] #finding states that are outliers
+
+crime_df_no_outlier = crime_df%>%
+  filter(!state %in% outliers)
+```
+
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+
+crime_trans = crime_df_no_outlier %>%
+  mutate(
+    hate_crimes_per_100k_splc = log(hate_crimes_per_100k_splc)
+  ) %>%
+  drop_na()
+
+crime =
+  crime_trans %>%
+ dplyr::select(-state)
+
+```
+
+
+```{r, echo = FALSE, warning = FALSE}
+
+    reg_med_2 <- lm(hate_crimes_per_100k_splc ~ median_household_income* urbanization, data = crime)
+        interact_plot(reg_med_2, pred = median_household_income, modx = urbanization )
+
+
+reg_per <- lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree* urbanization, data = crime)
+    interact_plot(reg_per, pred = perc_population_with_high_school_degree, modx = urbanization )
+    
+
+reg_gin <- lm(hate_crimes_per_100k_splc ~ median_household_income* gini_index, data = crime)
+    interact_plot(reg_gin, pred = median_household_income, modx = gini_index ) 
+
+```
+
+Next, we did a stratified analysis to further explore these interactions. From these we found that three of the interactions were not significant. The only significant interaction upon stratification was between urbanization and perc_population_with_high_school_degree: high urbanization affects the percentage of the population with high school degree. We also checked for 3-way interactions between our predictors of interest but found no significant interaction.
 
 
 #### Model Diagnostics
 
 
 ## Conclusion/Discussion
-
+The final model included `unemployment`, `perc_population_with_high_school_degree`. and `gini_index` as predictors, without any interactions. We concluded that `gini_index` was not the only main predictor.
 
 ## References
 
@@ -75,7 +159,81 @@ We found that studies have shown that high income is correlated with increased e
 
 5.
 
+## Appendix
+Table 1: Descriptive Statistics
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+crime_df = 
+  read_csv("data/HateCrimes.csv") %>% 
+  mutate(
+    unemployment = factor(unemployment),
+    urbanization = factor(urbanization),
+    hate_crimes_per_100k_splc = as.numeric(hate_crimes_per_100k_splc)
+  )
 
+crime_df_no_na = 
+  read_csv("data/HateCrimes.csv", na = c("", "N/A")) %>% 
+  mutate(
+    unemployment = factor(unemployment),
+    urbanization = factor(urbanization),
+    hate_crimes_per_100k_splc = as.numeric(hate_crimes_per_100k_splc)
+  ) %>% 
+  na.omit()
+
+my_controls =  tableby.control(
+               total = F,
+               test=F,  
+               numeric.stats = c("meansd", "medianq1q3", "range", "Nmiss2"),
+               cat.stats = c("countpct", "Nmiss2"),
+               stats.labels = list(
+               meansd = "Mean (SD)",
+               medianq1q3 = "Median (Q1, Q3)",
+               range = "Min - Max",
+               Nmiss2 = "Missing",
+               countpct = "N (%)"))
+
+tab = tableby( ~ hate_crimes_per_100k_splc + unemployment + urbanization + median_household_income +   perc_population_with_high_school_degree + perc_non_citizen + gini_index + perc_non_white, 
+               data = crime_df, 
+               control = my_controls)
+
+summary(tab, text = T)
+```
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+crime_df %>% 
+  ggplot(aes(x = hate_crimes_per_100k_splc)) + geom_density()
+```
+Figure 1: Distribution of `hate_crimes_per_100k_splc`.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+mod = 
+  lm(hate_crimes_per_100k_splc ~ unemployment + urbanization + median_household_income +   perc_population_with_high_school_degree + perc_non_citizen + gini_index + perc_non_white, 
+      data = crime_df_no_na)
+
+boxcox(mod)
+```
+Figure 2: Box-Cox transformation.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+trans_df = 
+  crime_df_no_na %>% 
+  mutate(
+    hate_crimes_per_100k_splc = log(hate_crimes_per_100k_splc)
+  )
+
+trans_df %>% 
+  ggplot(aes(x = hate_crimes_per_100k_splc)) + geom_density()
+```
+Figure 3: Distribution of `hate_crimes_per_100k_splc` after applied logarithm transformation.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+crime_df_no_na %>% 
+  mutate(state = fct_reorder(state, hate_crimes_per_100k_splc)) %>% 
+  ggplot(aes(x = state, y = hate_crimes_per_100k_splc)) + 
+  geom_point() + 
+  geom_line() +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+```
+Figure 4: Scatter plot of `hate_crimes_per_100k_splc` of each state, from lowest hate crime rate to highest crime rate.
 
 ```{r word count}
 # use this code to do work count!

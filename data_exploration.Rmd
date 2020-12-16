@@ -49,7 +49,7 @@ Descriptive statistics
 ```{r}
 my_controls =  tableby.control(
                total = F,
-               test=F,  
+               test = F,  
                numeric.stats = c("meansd", "medianq1q3", "range", "Nmiss2"),
                cat.stats = c("countpct", "Nmiss2"),
                stats.labels = list(
@@ -287,8 +287,9 @@ mod_trans %>% broom::glance()
 
 R squared is around the same for both models, however final model has 138% improvement in adjusted R squared compared to model that contains all variables. 
 
-# Explore interactions of all variables
+# __Explore interactions of all variables__
 ```{r}
+
 crime =
   crime_trans %>%
  dplyr::select(-state)
@@ -297,6 +298,7 @@ crime =
 
 Check for 2-way interactions between all predictors
 ```{r}
+
 lm.fit = lm(hate_crimes_per_100k_splc ~ (.)^2, data = crime)
 lm_fit_df = broom::tidy(lm.fit)
 lm_fit_df
@@ -317,7 +319,8 @@ From the analysis above, we see 4 significant interactions: unemployment and med
 # Unemployment and median household income
 reg_med<-lm(hate_crimes_per_100k_splc ~ median_household_income *unemployment, data = crime)
   summary(reg_med)
-    interact_plot(reg_med, pred = median_household_income, modx = unemployment )
+    interact_plot(reg_med, pred = median_household_income, modx = unemployment ) ## interaction plot
+    
 # high unemployment
   int_1<-filter(crime, unemployment=="high") 
     reg_1<-lm(hate_crimes_per_100k_splc ~ median_household_income, data=int_1)
@@ -332,6 +335,7 @@ reg_med<-lm(hate_crimes_per_100k_splc ~ median_household_income *unemployment, d
 reg_med_2<-lm(hate_crimes_per_100k_splc ~ median_household_income* urbanization, data = crime)
 summary(reg_med_2)
 interact_plot(reg_med_2, pred = median_household_income, modx = urbanization )
+
 # high urbanization
   int_3<-filter(crime, urbanization=="high") 
     reg_3<-lm(hate_crimes_per_100k_splc ~ median_household_income, data=int_3)
@@ -345,6 +349,7 @@ interact_plot(reg_med_2, pred = median_household_income, modx = urbanization )
 reg_per<-lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree* urbanization, data=crime)
   summary(reg_per)
     interact_plot(reg_per, pred = perc_population_with_high_school_degree, modx = urbanization )
+    
 # high urbanization
 reg_5<-lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree, data=int_3)
   summary(reg_5) # significant!
@@ -374,48 +379,20 @@ Conclusion: There are no significant interactions between our predictors of inte
 
 ```{r}
 # compare models
-main = lm(hate_crimes_per_100k_splc~gini_index, data = crime_trans) ## Model with main predictor
-broom::glance(main)
+model_1 = lm(hate_crimes_per_100k_splc~gini_index, data = crime_trans) ## Model with main predictor
+broom::glance(model_1)
+
+
+model_2 = lm(formula = hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree* urbanization + gini_index, data = crime_trans)
+broom::glance(model_2)
+broom::tidy(model_2) ## Model with an interaction btw perc_pop_with Hs degree and high urbanization
+
 
 final_rec
 broom::glance(final_rec) # our final recommended model
 ```
+In comparing all three models, model_2 has the highest adj. r_sq value and the least AIC and BIC.
 
-## everything below can be deleted
-
-
-
-stepwise with all two-way interactions for full transformed data.
-```{r}
-trans_full_df = 
-  crime_df %>% 
-  mutate(
-    hate_crimes_per_100k_splc = log(hate_crimes_per_100k_splc)
-  )
-```
-
-```{r}
-mod_trans_2way = lm(hate_crimes_per_100k_splc ~ (unemployment + perc_population_with_high_school_degree + gini_index)^2, data = trans_full_df)
-step(mod_trans_2way, direction='backward')
-```
-
-stepwise with all three-way interactions for full transformed data.
-```{r}
-mod_trans_3way = lm(hate_crimes_per_100k_splc ~ (unemployment + perc_population_with_high_school_degree + gini_index)^3, data = trans_full_df)
-step(mod_trans_3way, direction='backward')
-```
-
-stepwise with all two-way interactions for full non-transformed data.
-```{r}
-mod_2way = lm(hate_crimes_per_100k_splc ~ (unemployment + perc_population_with_high_school_degree + gini_index)^2, data = crime_df)
-step(mod_2way, direction='backward')
-```
-
-stepwise with all three-way interactions for full non-transformed data.
-```{r}
-mod_3way = lm(hate_crimes_per_100k_splc ~ (unemployment + perc_population_with_high_school_degree + gini_index)^3, data = crime_df)
-step(mod_3way, direction='backward')
-```
 
 ### Model Diagnosis:
 
