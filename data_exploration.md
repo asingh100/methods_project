@@ -1701,7 +1701,8 @@ reg_gin<-lm(hate_crimes_per_100k_splc ~ median_household_income* gini_index, dat
 ```
 
 <img src="data_exploration_files/figure-gfm/unnamed-chunk-21-4.png" width="90%" />
-There appears to be a significant interaction between urbanization and
+With the plots, we observe that there actually just 3 interactions and
+there appears to be a significant interaction between urbanization and
 percent\_pop with high school degree.
 
 Check 3\_way interactions between predictors of interest
@@ -1821,74 +1822,14 @@ probe_interaction(fit_4, pred = perc_population_with_high_school_degree, modx = 
 Conclusion: There are no significant interactions between our predictors
 of interest
 
-``` r
-# compare models
-model_1 = lm(hate_crimes_per_100k_splc~gini_index, data = crime_trans) ## Model with main predictor
-broom::glance(model_1)
-```
+| term                                                      | df |      sumsq |    meansq | statistic |   p.value |
+| :-------------------------------------------------------- | -: | ---------: | --------: | --------: | --------: |
+| perc\_population\_with\_high\_school\_degree              |  1 |  1.2012907 | 1.2012907 | 4.0336007 | 0.0515635 |
+| urbanization                                              |  1 |  0.3131419 | 0.3131419 | 1.0514437 | 0.3114931 |
+| perc\_population\_with\_high\_school\_degree:urbanization |  1 |  0.2719223 | 0.2719223 | 0.9130397 | 0.3451949 |
+| Residuals                                                 | 39 | 11.6150159 | 0.2978209 |        NA |        NA |
 
-    ## # A tibble: 1 x 12
-    ##   r.squared adj.r.squared sigma statistic p.value    df logLik   AIC   BIC
-    ##       <dbl>         <dbl> <dbl>     <dbl>   <dbl> <dbl>  <dbl> <dbl> <dbl>
-    ## 1  0.000257       -0.0241 0.572    0.0106   0.919     1  -35.9  77.9  83.2
-    ## # ... with 3 more variables: deviance <dbl>, df.residual <int>, nobs <int>
-
-``` r
-model_2 = lm(formula = hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree* urbanization + gini_index, data = crime_trans)
-broom::glance(model_2)
-```
-
-    ## # A tibble: 1 x 12
-    ##   r.squared adj.r.squared sigma statistic p.value    df logLik   AIC   BIC
-    ##       <dbl>         <dbl> <dbl>     <dbl>   <dbl> <dbl>  <dbl> <dbl> <dbl>
-    ## 1     0.236         0.133 0.526      2.29  0.0657     5  -30.2  74.3  86.6
-    ## # ... with 3 more variables: deviance <dbl>, df.residual <int>, nobs <int>
-
-``` r
-broom::tidy(model_2) ## Model with an interaction btw perc_pop_with Hs degree and high urbanization
-```
-
-    ## # A tibble: 6 x 5
-    ##   term                                      estimate std.error statistic p.value
-    ##   <chr>                                        <dbl>     <dbl>     <dbl>   <dbl>
-    ## 1 (Intercept)                                -13.6       5.75     -2.37   0.0232
-    ## 2 unemploymentlow                              0.348     0.187     1.86   0.0707
-    ## 3 perc_population_with_high_school_degree      9.01      4.34      2.08   0.0449
-    ## 4 urbanizationlow                              4.20      4.42      0.951  0.348 
-    ## 5 gini_index                                   9.28      6.83      1.36   0.182 
-    ## 6 perc_population_with_high_school_degree:~   -4.98      5.12     -0.974  0.336
-
-``` r
-final_rec
-```
-
-    ## 
-    ## Call:
-    ## lm(formula = hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + 
-    ##     gini_index, data = crime_trans)
-    ## 
-    ## Coefficients:
-    ##                             (Intercept)  
-    ##                                -12.8782  
-    ##                         unemploymentlow  
-    ##                                  0.3223  
-    ## perc_population_with_high_school_degree  
-    ##                                  6.8299  
-    ##                              gini_index  
-    ##                                 11.6847
-
-``` r
-broom::glance(final_rec) # our final recommended model
-```
-
-    ## # A tibble: 1 x 12
-    ##   r.squared adj.r.squared sigma statistic p.value    df logLik   AIC   BIC
-    ##       <dbl>         <dbl> <dbl>     <dbl>   <dbl> <dbl>  <dbl> <dbl> <dbl>
-    ## 1     0.211         0.150 0.521      3.47  0.0251     3  -30.9  71.7  80.5
-    ## # ... with 3 more variables: deviance <dbl>, df.residual <int>, nobs <int>
-
-In comparing all three models, model\_2 has the highest adj. r\_sq value
-and the least AIC and BIC.
+Further test shows no significant interaction
 
 ### Model Diagnosis:
 
