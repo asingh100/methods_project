@@ -72,7 +72,7 @@ For this procedure we started out with a model with all possible predictor varia
 After finding our final model we checked for interactions between the predictors in our model to see how that affects the associations between the predictors and the outcome.
 
 #### Model Diagnostics
-
+For model diagnosis, we plotted four diagnosis plots of our final model to check the assumptions. We also checked the existence of outliers using the studentized residuals. Since there is no candidate for outlier, we did not further explore the existence of the influential point. Finally, the existence of multicollinearity was checked by the variance inflation factor (VIF).
 
 ## Results
 ### Data Exploration
