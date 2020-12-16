@@ -30,7 +30,7 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 ## Abstract
-intro background
+Intro background
 describe methodology
 briefly describe findings
 conclusion
