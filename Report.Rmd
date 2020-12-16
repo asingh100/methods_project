@@ -46,11 +46,11 @@ A previous study used data from FBI and a self-reported survey to analysis the a
 ### Data Exploration
 There are 8 variables in the dataset. Numerical variables are: `hate_crimes_per_100k_splc`, `median_household_income`, `perc_population_with_high_school_degree`, `perc_non_citizen`, `gini_index`, and `perc_non_white`, while categorical variables include: `unemployment`, and `urbanization`. Both categorical variables contain two levels: low, and high. All coding process was done by using RStudio.
 
-First, we generated a descriptive statistics table to observe the data. This included obtaining the mean, standard deviation (SD), median, 25% quantile (Q1), 75% quantile (Q3), minimum value, maximum value, and count of missing values for each numerical variable. For categorical variables, we obtained counts of each level, and a count of missing values.
+Firstly, we generated a descriptive statistics table. This included the mean, standard deviation (SD), median, 25% quantile (Q1), 75% quantile (Q3), minimum value, maximum value, and count of missing values for each numerical variable. For categorical variables, we obtained counts of each level, and a count of missing values.
 
 Secondly, we generated a density plot of outcome to show its distribution by using the `ggplot` function. We, furthermore, used the `boxcox` function to find the optimal transformation of the outcome and then double-checked the distribution of transformed outcome.
 
-Finally, we generated a scatter plot of `hate_crimes_per_100k_splc` versus `state`, from low hate crime rate to high crime rate, so we could observe any potential outliers.
+Finally, we generated a scatter plot of `hate_crimes_per_100k_splc` versus `state`, from low hate crime rate to high crime rate to observe any potential outliers.
 
 ### Modeling
 
@@ -71,7 +71,7 @@ After finding our final model we thought to check for interactions between the p
 
 ## Results
 ### Data Exploration
-The table showed that there were 4 NA’s in the variable `hate_crimes_per_100k_splc` and 3 NA’s in the variable `perc_non_citizen`. The `low` level of `unemployment` and `urbanization` were similar, about 50% across 51 states. The distribution of the outcome variable was highly skewed to right. The box-cox transformation indicated that a natural logarithm transformation should be applied to the outcome variable. The distribution of transformed outcome variable was approximately normal. The scatter plot indicated that data from `District of Columbia` and `Oregon` could be potential outliers.
+Table 1 showed that there were 4 NA’s in the variable `hate_crimes_per_100k_splc` and 3 NA’s in the variable `perc_non_citizen`. The `low` level of `unemployment` and `urbanization` were similar, about 50% across 51 states. The distribution of the outcome variable was highly skewed to right. The box-cox transformation indicated that a natural logarithm transformation should be applied to the outcome variable. The distribution of transformed outcome variable was approximately normal. The scatter plot indicated that data from `District of Columbia` and `Oregon` could be potential outliers.
 
 ### Modeling
 
@@ -155,6 +155,35 @@ Next, we did a stratified analysis to further explore these interactions. From t
 
 5.
 
+## Appendix
+Table 1: Descriptive Statistics
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+crime_df = 
+  read_csv("data/HateCrimes.csv") %>% 
+  mutate(
+    unemployment = factor(unemployment),
+    urbanization = factor(urbanization),
+    hate_crimes_per_100k_splc = as.numeric(hate_crimes_per_100k_splc)
+  )
+
+my_controls =  tableby.control(
+               total = F,
+               test=F,  
+               numeric.stats = c("meansd", "medianq1q3", "range", "Nmiss2"),
+               cat.stats = c("countpct", "Nmiss2"),
+               stats.labels = list(
+               meansd = "Mean (SD)",
+               medianq1q3 = "Median (Q1, Q3)",
+               range = "Min - Max",
+               Nmiss2 = "Missing",
+               countpct = "N (%)"))
+
+tab = tableby( ~ hate_crimes_per_100k_splc + unemployment + urbanization + median_household_income +   perc_population_with_high_school_degree + perc_non_citizen + gini_index + perc_non_white, 
+               data = crime_df, 
+               control = my_controls)
+
+summary(tab, text = T)
+```
 
 
 ```{r word count}
