@@ -287,8 +287,9 @@ mod_trans %>% broom::glance()
 
 R squared is around the same for both models, however final model has 138% improvement in adjusted R squared compared to model that contains all variables. 
 
-# Explore interactions of all variables
+# __Explore interactions of all variables__
 ```{r}
+
 crime =
   crime_trans %>%
  dplyr::select(-state)
@@ -297,6 +298,7 @@ crime =
 
 Check for 2-way interactions between all predictors
 ```{r}
+
 lm.fit = lm(hate_crimes_per_100k_splc ~ (.)^2, data = crime)
 lm_fit_df = broom::tidy(lm.fit)
 lm_fit_df
@@ -374,16 +376,17 @@ Conclusion: There are no significant interactions between our predictors of inte
 
 ```{r}
 # compare models
-main = lm(hate_crimes_per_100k_splc~gini_index, data = crime_trans) ## Model with main predictor
-broom::glance(main)
+model_1 = lm(hate_crimes_per_100k_splc~gini_index, data = crime_trans) ## Model with main predictor
+broom::glance(model_1)
 
-final = lm(formula = hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + gini_index, data = int_3)
-broom::glance(final)
-broom::tidy(final)
+model_2 = lm(formula = hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + gini_index, data = int_3)
+broom::glance(model_2)
+broom::tidy(model_2) ## Model with an interaction btw perc_pop_with Hs degree and high urbanization
 
 final_rec
 broom::glance(final_rec) # our final recommended model
 ```
+In comparing all three models, model_2 has the highest adj. r_sq value and the least AIC and BIC.
 
 ## everything below can be deleted
 

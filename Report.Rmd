@@ -30,7 +30,10 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 ## Abstract
-
+intro background
+describe methodology
+briefly describe findings
+conclusion
 
 ## Introduction
 
@@ -79,7 +82,7 @@ We found that studies have shown that high income is correlated with increased e
 #### Stepwise Regression Procedure
 
 #### Checking Interactions
-We explored all 2-way interactions among all the variables. Here, we observed that there were four different interactions:
+We explored all 2-way interactions among all the variables. Here, we observed that there were three different interactions:
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 

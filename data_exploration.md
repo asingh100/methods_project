@@ -1397,7 +1397,7 @@ R squared is around the same for both models, however final model has
 138% improvement in adjusted R squared compared to model that contains
 all variables.
 
-# Explore interactions of all variables
+# **Explore interactions of all variables**
 
 ``` r
 crime =
@@ -1823,8 +1823,8 @@ of interest
 
 ``` r
 # compare models
-main = lm(hate_crimes_per_100k_splc~gini_index, data = crime_trans) ## Model with main predictor
-broom::glance(main)
+model_1 = lm(hate_crimes_per_100k_splc~gini_index, data = crime_trans) ## Model with main predictor
+broom::glance(model_1)
 ```
 
     ## # A tibble: 1 x 12
@@ -1834,8 +1834,8 @@ broom::glance(main)
     ## # ... with 3 more variables: deviance <dbl>, df.residual <int>, nobs <int>
 
 ``` r
-final = lm(formula = hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + gini_index, data = int_3)
-broom::glance(final)
+model_2 = lm(formula = hate_crimes_per_100k_splc ~ unemployment + perc_population_with_high_school_degree + gini_index, data = int_3)
+broom::glance(model_2)
 ```
 
     ## # A tibble: 1 x 12
@@ -1845,7 +1845,7 @@ broom::glance(final)
     ## # ... with 3 more variables: deviance <dbl>, df.residual <int>, nobs <int>
 
 ``` r
-broom::tidy(final)
+broom::tidy(model_2) ## Model with an interaction btw perc_pop_with Hs degree and high urbanization
 ```
 
     ## # A tibble: 4 x 5
@@ -1884,6 +1884,9 @@ broom::glance(final_rec) # our final recommended model
     ##       <dbl>         <dbl> <dbl>     <dbl>   <dbl> <dbl>  <dbl> <dbl> <dbl>
     ## 1     0.211         0.150 0.521      3.47  0.0251     3  -30.9  71.7  80.5
     ## # ... with 3 more variables: deviance <dbl>, df.residual <int>, nobs <int>
+
+In comparing all three models, model\_2 has the highest adj. r\_sq value
+and the least AIC and BIC.
 
 ## everything below can be deleted
 
