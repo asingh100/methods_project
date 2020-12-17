@@ -2,7 +2,7 @@
 title: "Data Exploration"
 author: "Hanfei Qi, Anmol Singh, Wuraola Olawole, Ting Lian"
 date: "12/4/2020"
-output: github_document
+output: word_document
 ---
 
 ### Data Exploration:
@@ -63,7 +63,8 @@ tab = tableby( ~ hate_crimes_per_100k_splc + unemployment + urbanization + media
                data = crime_df, 
                control = my_controls)
 
-summary(tab, title = "Descriptive Statistics: Hate Crime Data", text = T)
+summary(tab, title = "Descriptive Statistics: Hate Crime Data", text = T) %>%
+  knitr::kable()
 ```
 
 Comment: there are 4 NA's in variable `hate_crimes_per_100k_splc` and 3 NA's in variable `perc_non_citizen`.  
@@ -147,7 +148,7 @@ income_hate_model_full_data = crime_df%>%
 
 income_hate_model_full_data%>%
   broom::tidy()%>%
-  knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using all the data", format = "html")
+  knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using all the data")
 
 income_hate_model_trans = crime_df%>%
   mutate(
@@ -157,7 +158,7 @@ income_hate_model_trans = crime_df%>%
 
 income_hate_model_trans%>%
   broom::tidy()%>%
-  knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using log transformed data", format = "html")
+  knitr::kable(caption = "Testing Association between Income Inequality and Hate Crime using log transformed data")
 
 ```
 
@@ -363,7 +364,7 @@ reg_gin<-lm(hate_crimes_per_100k_splc ~ median_household_income* gini_index, dat
     interact_plot(reg_gin, pred = median_household_income, modx = gini_index ) # not significant
 
 ```
-With the plots, we observe that there actually just 3 interactions and there appears to be a significant interaction between urbanization and percent_pop with high school degree.
+With the plots, we observe that there are actually just 3 interactions and there appears to be a significant interaction between urbanization and percent_pop with high school degree.
 
 
 Check 3_way interactions between predictors of interest
@@ -418,6 +419,8 @@ Result: there is no outlier in Y.
 
 Check for multicollinearity:
 ```{r}
-vif(final_rec)
+vif(final_rec) %>%
+  knitr::kable()
+
 ```
 Result: None of the parameter has variance inflation factor (VIF) value greater than 5 indicating that there is no multicollinearity in this model.
