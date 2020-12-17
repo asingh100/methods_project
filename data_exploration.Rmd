@@ -2,7 +2,7 @@
 title: "Data Exploration"
 author: "Hanfei Qi, Anmol Singh, Wuraola Olawole, Ting Lian"
 date: "12/4/2020"
-output: word_document
+output: github_document
 ---
 
 ### Data Exploration:
