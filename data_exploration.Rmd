@@ -397,7 +397,7 @@ Further test shows no significant interaction
 
 Use diagnostic plots to check model assumptions:
 ```{r, message=FALSE, warning=FALSE}
-plot(final_rec)
+plot(final_rec,sub = "")
 ```
 1. Residuals vs. Fitted Plot: The points show a random patter and are evenly spread above and below the line of 0. The red line is approximately horizontal and is bouncing around the line of 0. This graph shows that this model fit the assumption of homoscedasiticity.
 
