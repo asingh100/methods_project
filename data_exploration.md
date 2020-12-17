@@ -84,7 +84,7 @@ summary(tab, title = "Descriptive Statistics: Hate Crime Data", text = T) %>%
 Comment: there are 4 NA’s in variable `hate_crimes_per_100k_splc` and 3
 NA’s in variable `perc_non_citizen`.
 
-Code to remove NA’s (not sure if we wanna do that).
+Code to remove NA’s
 
 ``` r
 crime_df_no_na = 
@@ -168,7 +168,7 @@ crime_df_no_na %>%
 
 <img src="data_exploration_files/figure-gfm/unnamed-chunk-9-1.png" width="90%" />
 
-Comment: A wired point in `District of Columbia`. The rate of `Oregon`
+Comment: A wierd point in `District of Columbia`. The rate of `Oregon`
 is slightly higher than other states. I will also consider `Minnesota`,
 `Massachusetts`, `Washington` as potential outliers.
 

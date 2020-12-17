@@ -70,7 +70,7 @@ summary(tab, title = "Descriptive Statistics: Hate Crime Data", text = T) %>%
 Comment: there are 4 NA's in variable `hate_crimes_per_100k_splc` and 3 NA's in variable `perc_non_citizen`.  
 
 
-Code to remove NA's (not sure if we wanna do that).
+Code to remove NA's 
 ```{r, message=FALSE, warning=FALSE}
 crime_df_no_na = 
   read_csv("data/HateCrimes.csv", na = c("", "N/A")) %>% 
@@ -135,7 +135,7 @@ crime_df_no_na %>%
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
 ```
 
-Comment: A wired point in `District of Columbia`. The rate of `Oregon` is slightly higher than other states. I will also consider `Minnesota`, `Massachusetts`, `Washington` as potential outliers.
+Comment: A wierd point in `District of Columbia`. The rate of `Oregon` is slightly higher than other states. I will also consider `Minnesota`, `Massachusetts`, `Washington` as potential outliers.
 
 ### Modeling:
 
